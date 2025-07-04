@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de JSON de Módulo</title>
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter para todo o corpo */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos para o destaque de sintaxe JSON */
+        .json-key {
+            color: #a0a0a0; /* Cinza para chaves */
+        }
+        .json-string {
+            color: #98c379; /* Verde para strings */
+        }
+        .json-number {
+            color: #61afef; /* Azul para números */
+        }
+        .json-boolean {
+            color: #d19a66; /* Laranja para booleanos */
+        }
+        .json-null {
+            color: #c678dd; /* Roxo para null */
+        }
+        .json-bracket {
+            color: #abb2bf; /* Cinza claro para colchetes/chaves */
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Configuração do Módulo</h1>
+
+        <form id="moduleForm" class="space-y-6">
+            <!-- Campo Module ID -->
+            <div>
+                <label for="moduleId" class="block text-sm font-medium text-gray-700 mb-1">ID do Módulo:</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="moduleId" name="moduleId" readonly
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 sm:text-sm"
+                           value="">
+                    <button type="button" onclick="generateModuleId()"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                        Gerar ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- Campo Module Title -->
+            <div>
+                <label for="moduleTitle" class="block text-sm font-medium text-gray-700 mb-1">Título do Módulo:</label>
+                <input type="text" id="moduleTitle" name="moduleTitle" value="input_text"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="Ex: Título do Meu Módulo">
+            </div>
+
+            <!-- Campo Método HTTP -->
+            <div>
+                <label for="methodHttp" class="block text-sm font-medium text-gray-700 mb-1">Método HTTP:</label>
+                <select id="methodHttp" name="methodHttp"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+
+            <!-- Campo URL -->
+            <div>
+                <label for="url" class="block text-sm font-medium text-gray-700 mb-1">URL:</label>
+                <input type="url" id="url" name="url" value="input_url"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="Ex: https://api.example.com/data">
+            </div>
+
+            <!-- Campo HMAC -->
+            <div>
+                <label for="hmac" class="block text-sm font-medium text-gray-700 mb-1">HMAC:</label>
+                <input type="text" id="hmac" name="hmac" value="input_hmac"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="Ex: seu_segredo_hmac">
+            </div>
+
+            <!-- Seção de Parâmetros -->
+            <div class="border-t border-gray-200 pt-6 mt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Parâmetros (params)</h2>
+                <div id="paramsContainer" class="space-y-4">
+                    <!-- Parâmetros serão adicionados aqui pelo JavaScript -->
+                    <div class="flex items-center space-x-2">
+                        <input type="text" name="paramKey" value="input_text" placeholder="Chave do Parâmetro"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <input type="text" name="paramValue" value="input_text" placeholder="Valor do Parâmetro"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <label class="flex items-center space-x-1 text-sm text-gray-700">
+                            <input type="checkbox" name="paramHide" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Esconder</span>
+                        </label>
+                        <button type="button" onclick="removeField(this)"
+                                class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
+                            Remover
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="addParamField()"
+                        class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
+                    Adicionar Parâmetro
+                </button>
+            </div>
+
+            <!-- Seção de Dados (Body) -->
+            <div id="bodySection" class="border-t border-gray-200 pt-6 mt-6 hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Dados (body)</h2>
+                <div id="bodyContainer" class="space-y-4">
+                    <!-- Campos de body serão adicionados aqui pelo JavaScript -->
+                    <div class="flex flex-wrap items-center space-x-2 space-y-2 md:space-y-0">
+                        <input type="text" name="bodyKey" value="input_text" placeholder="Chave do Dado"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
+                        <input type="text" name="bodyValue" value="string" placeholder="Valor do Dado"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
+                        <select name="bodyValueType" onchange="updateBodyValuePlaceholder(this)"
+                                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="text">Texto</option>
+                            <option value="number">Número</option>
+                        </select>
+                        <label class="flex items-center space-x-1 text-sm text-gray-700">
+                            <input type="checkbox" name="bodyHide" class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Esconder</span>
+                        </label>
+                        <button type="button" onclick="removeField(this)"
+                                class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
+                            Remover
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="addBodyField()"
+                        class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
+                    Adicionar Dado
+                </button>
+            </div>
+
+            <!-- Botão de Submissão -->
+            <div class="pt-6 mt-6 border-t border-gray-200">
+                <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    Gerar JSON
+                </button>
+            </div>
+        </form>
+
+        <!-- Área para exibir o JSON gerado -->
+        <div class="mt-8 p-4 bg-gray-50 rounded-md border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">JSON Gerado:</h2>
+            <pre id="jsonOutput" class="bg-gray-800 text-white p-4 rounded-md overflow-auto text-sm"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Função para gerar um valor hexadecimal aleatório de 64 bits (16 caracteres)
+        function generateRandomHexId() {
+            let id = '';
+            for (let i = 0; i < 16; i++) {
+                id += Math.floor(Math.random() * 16).toString(16);
+            }
+            return id.toUpperCase();
+        }
+
+        // Função para preencher o campo moduleId com um novo ID
+        function generateModuleId() {
+            document.getElementById('moduleId').value = generateRandomHexId();
+        }
+
+        // Função genérica para remover um campo (param ou body)
+        function removeField(button) {
+            button.parentNode.remove();
+        }
+
+        // Função para adicionar um novo campo de parâmetro
+        function addParamField(key = '', value = '', hide = false) {
+            const container = document.getElementById('paramsContainer');
+            const newParamDiv = document.createElement('div');
+            newParamDiv.className = 'flex items-center space-x-2';
+            newParamDiv.innerHTML = `
+                <input type="text" name="paramKey" value="${key}" placeholder="Chave do Parâmetro"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <input type="text" name="paramValue" value="${value}" placeholder="Valor do Parâmetro"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <label class="flex items-center space-x-1 text-sm text-gray-700">
+                    <input type="checkbox" name="paramHide" ${hide ? 'checked' : ''} class="rounded text-blue-600 focus:ring-blue-500">
+                    <span>Esconder</span>
+                </label>
+                <button type="button" onclick="removeField(this)"
+                        class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
+                    Remover
+                </button>
+            `;
+            container.appendChild(newParamDiv);
+        }
+
+        // Função para atualizar o placeholder do campo de valor do body
+        function updateBodyValuePlaceholder(selectElement) {
+            const valueInput = selectElement.previousElementSibling; // O input de valor é o elemento anterior
+            if (selectElement.value === 'number') {
+                valueInput.value = '0.00';
+                valueInput.type = 'number'; // Muda o tipo para number para validação do navegador
+                valueInput.step = '0.01'; // Permite decimais
+            } else {
+                valueInput.value = 'string';
+                valueInput.type = 'text';
+            }
+        }
+
+        // Função para adicionar um novo campo de body
+        function addBodyField(key = '', value = '', value_type = 'text', hide = false) {
+            const container = document.getElementById('bodyContainer');
+            const newBodyDiv = document.createElement('div');
+            newBodyDiv.className = 'flex flex-wrap items-center space-x-2 space-y-2 md:space-y-0';
+            const initialValue = (value_type === 'number' ? (value === '' ? '0.00' : value) : (value === '' ? 'string' : value));
+            const inputType = (value_type === 'number' ? 'number' : 'text');
+            const inputStep = (value_type === 'number' ? '0.01' : '');
+
+            newBodyDiv.innerHTML = `
+                <input type="text" name="bodyKey" value="${key}" placeholder="Chave do Dado"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
+                <input type="${inputType}" name="bodyValue" value="${initialValue}" placeholder="Valor do Dado" step="${inputStep}"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
+                <select name="bodyValueType" onchange="updateBodyValuePlaceholder(this)"
+                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="text" ${value_type === 'text' ? 'selected' : ''}>Texto</option>
+                    <option value="number" ${value_type === 'number' ? 'selected' : ''}>Número</option>
+                </select>
+                <label class="flex items-center space-x-1 text-sm text-gray-700">
+                    <input type="checkbox" name="bodyHide" ${hide ? 'checked' : ''} class="rounded text-blue-600 focus:ring-blue-500">
+                    <span>Esconder</span>
+                </label>
+                <button type="button" onclick="removeField(this)"
+                        class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
+                    Remover
+                </button>
+            `;
+            container.appendChild(newBodyDiv);
+        }
+
+        // Função para destaque de sintaxe JSON
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Função para controlar a visibilidade da seção de body
+        function toggleBodySection() {
+            const methodHttp = document.getElementById('methodHttp').value;
+            const bodySection = document.getElementById('bodySection');
+            if (methodHttp === 'POST' || methodHttp === 'PUT' || methodHttp === 'DELETE') {
+                bodySection.classList.remove('hidden');
+            } else {
+                bodySection.classList.add('hidden');
+            }
+        }
+
+        // Adiciona um ouvinte de evento para a submissão do formulário
+        document.getElementById('moduleForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Previne o comportamento padrão de submissão do formulário
+
+            const moduleId = document.getElementById('moduleId').value;
+            const moduleTitle = document.getElementById('moduleTitle').value;
+            const methodHttp = document.getElementById('methodHttp').value;
+            const url = document.getElementById('url').value;
+            const hmac = document.getElementById('hmac').value;
+
+            // Coleta todos os pares de chave/valor e o estado 'hide' dos parâmetros
+            const paramKeys = document.querySelectorAll('input[name="paramKey"]');
+            const paramValues = document.querySelectorAll('input[name="paramValue"]');
+            const paramHides = document.querySelectorAll('input[name="paramHide"]');
+            const params = [];
+
+            for (let i = 0; i < paramKeys.length; i++) {
+                const key = paramKeys[i].value;
+                const value = paramValues[i].value;
+                const hide = paramHides[i].checked;
+                if (key && value) {
+                    params.push({ key: key, value: value, hide: hide });
+                }
+            }
+
+            // Coleta os dados do body se a seção estiver visível
+            const body = [];
+            if (!document.getElementById('bodySection').classList.contains('hidden')) {
+                const bodyKeys = document.querySelectorAll('input[name="bodyKey"]');
+                const bodyValues = document.querySelectorAll('input[name="bodyValue"]');
+                const bodyValueTypes = document.querySelectorAll('select[name="bodyValueType"]');
+                const bodyHides = document.querySelectorAll('input[name="bodyHide"]');
+
+                for (let i = 0; i < bodyKeys.length; i++) {
+                    const key = bodyKeys[i].value;
+                    let value = bodyValues[i].value;
+                    const value_type = bodyValueTypes[i].value;
+                    const hide = bodyHides[i].checked;
+
+                    // Converte o valor para número se o tipo for 'number'
+                    if (value_type === 'number') {
+                        value = parseFloat(value);
+                        if (isNaN(value)) {
+                            value = 0.00; // Define um valor padrão se a conversão falhar
+                        }
+                    }
+
+                    if (key && (value !== '' || value_type === 'number')) { // Inclui se chave existe e valor não vazio ou é número
+                        body.push({ key: key, value: value, value_type: value_type, hide: hide });
+                    }
+                }
+            }
+
+            // Constrói o objeto JSON final
+            const moduleData = {
+                module: {
+                    moduleId: moduleId,
+                    moduleTitle: moduleTitle,
+                    method_http: methodHttp,
+                    url: url,
+                    hmac: hmac,
+                    params: params
+                }
+            };
+
+            // Adiciona o array 'body' apenas se houver dados e o método HTTP permitir
+            if (body.length > 0 && (methodHttp === 'POST' || methodHttp === 'PUT' || methodHttp === 'DELETE')) {
+                moduleData.module.body = body;
+            }
+
+            // Exibe o JSON no console e na área de saída com destaque de sintaxe
+            const jsonString = JSON.stringify(moduleData, null, 2);
+            console.log(jsonString);
+            document.getElementById('jsonOutput').innerHTML = syntaxHighlight(jsonString);
+        });
+
+        // Adiciona ouvintes de evento e inicializa o formulário ao carregar a página
+        window.onload = function() {
+            generateModuleId(); // Gera um ID inicial ao carregar
+            toggleBodySection(); // Ajusta a visibilidade da seção de body inicialmente
+            document.getElementById('methodHttp').addEventListener('change', toggleBodySection); // Adiciona ouvinte para mudanças no método HTTP
+            // Já existe um campo inicial no HTML para params e body.
+        };
+    </script>
+</body>
+</html>
