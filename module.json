@@ -1,0 +1,24 @@
+{ 
+  "module": {
+    "moduleId": "UPPERCASE(Hexadecimal random value 64 bit)",
+    "moduleTitle": "input_text",
+    "method_http": "GET",
+    "url": "input_url",
+    "hmac": "input_hmac",
+    "params": [
+      {
+        "key": "input_text",
+        "value": "input_text",
+        "hide": "(true OR false)"
+      }
+    ],
+    "body": [
+      {
+        "key": "input_text",
+        "value": "input_text_or_number",
+        "value_type": "(number [if number 0.00] OR text [if text 'string'])",
+        "hide": "(true OR false)"
+      }
+    ]
+  }
+}
