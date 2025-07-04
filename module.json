@@ -9,6 +9,7 @@
       {
         "key": "input_text",
         "value": "input_text",
+        "alias": "input_alias_key_title_text (if key hide:true no alias necessary)",
         "hide": "(true OR false)"
       }
     ],
@@ -17,6 +18,7 @@
         "key": "input_text",
         "value": "input_text_or_number",
         "value_type": "(number [if number 0.00] OR text [if text 'string'])",
+        "alias": "input_alias_key_title_text (if key hide:true no alias necessary)",
         "hide": "(true OR false)"
       }
     ]
