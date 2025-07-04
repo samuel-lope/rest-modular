@@ -1,0 +1,17 @@
+name = "rest-modular"
+compatibility_date = "2025-06-20"
+main = "src/worker.js"
+
+[assets]
+directory = "./public"
+
+[vars]
+
+kv_namespaces = []
+
+[[routes]]
+pattern = "rest.sl.app.br"
+custom_domain = true
+
+[observability.logs]
+enabled = true
