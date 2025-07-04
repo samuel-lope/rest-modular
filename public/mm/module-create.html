@@ -36,7 +36,7 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl">
         <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Configuração do Módulo</h1>
 
         <form id="moduleForm" class="space-y-6">
@@ -94,16 +94,18 @@
             <div class="border-t border-gray-200 pt-6 mt-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">Parâmetros (params)</h2>
                 <div id="paramsContainer" class="space-y-4">
-                    <!-- Parâmetros serão adicionados aqui pelo JavaScript -->
-                    <div class="flex items-center space-x-2">
+                    <!-- Template inicial para o primeiro parâmetro -->
+                    <div class="flex flex-wrap items-center gap-2 p-2 border rounded-md">
                         <input type="text" name="paramKey" value="input_text" placeholder="Chave do Parâmetro"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
                         <input type="text" name="paramValue" value="input_text" placeholder="Valor do Parâmetro"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        <label class="flex items-center space-x-1 text-sm text-gray-700">
-                            <input type="checkbox" name="paramHide" class="rounded text-blue-600 focus:ring-blue-500">
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
+                        <label class="flex items-center space-x-1 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="paramHide" onchange="toggleAliasField(this)" class="rounded text-blue-600 focus:ring-blue-500">
                             <span>Esconder</span>
                         </label>
+                        <input type="text" name="paramAlias" placeholder="Alias do Parâmetro"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
                         <button type="button" onclick="removeField(this)"
                                 class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
                             Remover
@@ -120,8 +122,8 @@
             <div id="bodySection" class="border-t border-gray-200 pt-6 mt-6 hidden">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">Dados (body)</h2>
                 <div id="bodyContainer" class="space-y-4">
-                    <!-- Campos de body serão adicionados aqui pelo JavaScript -->
-                    <div class="flex flex-wrap items-center space-x-2 space-y-2 md:space-y-0">
+                    <!-- Template inicial para o primeiro item do body -->
+                    <div class="flex flex-wrap items-center gap-2 p-2 border rounded-md">
                         <input type="text" name="bodyKey" value="input_text" placeholder="Chave do Dado"
                                class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
                         <input type="text" name="bodyValue" value="string" placeholder="Valor do Dado"
@@ -131,10 +133,12 @@
                             <option value="text">Texto</option>
                             <option value="number">Número</option>
                         </select>
-                        <label class="flex items-center space-x-1 text-sm text-gray-700">
-                            <input type="checkbox" name="bodyHide" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label class="flex items-center space-x-1 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="bodyHide" onchange="toggleAliasField(this)" class="rounded text-blue-600 focus:ring-blue-500">
                             <span>Esconder</span>
                         </label>
+                         <input type="text" name="bodyAlias" placeholder="Alias do Dado"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
                         <button type="button" onclick="removeField(this)"
                                 class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
                             Remover
@@ -180,23 +184,36 @@
 
         // Função genérica para remover um campo (param ou body)
         function removeField(button) {
-            button.parentNode.remove();
+            button.parentElement.remove();
+        }
+        
+        // Função para mostrar ou esconder o campo de alias baseado no checkbox "Esconder"
+        function toggleAliasField(checkbox) {
+            const aliasInput = checkbox.parentElement.nextElementSibling;
+            if (checkbox.checked) {
+                aliasInput.classList.add('hidden');
+                aliasInput.value = ''; // Limpa o valor quando escondido
+            } else {
+                aliasInput.classList.remove('hidden');
+            }
         }
 
         // Função para adicionar um novo campo de parâmetro
-        function addParamField(key = '', value = '', hide = false) {
+        function addParamField(key = 'input_text', value = 'input_text', alias = '', hide = false) {
             const container = document.getElementById('paramsContainer');
             const newParamDiv = document.createElement('div');
-            newParamDiv.className = 'flex items-center space-x-2';
+            newParamDiv.className = 'flex flex-wrap items-center gap-2 p-2 border rounded-md';
             newParamDiv.innerHTML = `
                 <input type="text" name="paramKey" value="${key}" placeholder="Chave do Parâmetro"
-                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
                 <input type="text" name="paramValue" value="${value}" placeholder="Valor do Parâmetro"
-                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                <label class="flex items-center space-x-1 text-sm text-gray-700">
-                    <input type="checkbox" name="paramHide" ${hide ? 'checked' : ''} class="rounded text-blue-600 focus:ring-blue-500">
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
+                <label class="flex items-center space-x-1 text-sm text-gray-700 cursor-pointer">
+                    <input type="checkbox" name="paramHide" onchange="toggleAliasField(this)" ${hide ? 'checked' : ''} class="rounded text-blue-600 focus:ring-blue-500">
                     <span>Esconder</span>
                 </label>
+                <input type="text" name="paramAlias" value="${alias}" placeholder="Alias do Parâmetro"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px] ${hide ? 'hidden' : ''}">
                 <button type="button" onclick="removeField(this)"
                         class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
                     Remover
@@ -205,13 +222,13 @@
             container.appendChild(newParamDiv);
         }
 
-        // Função para atualizar o placeholder do campo de valor do body
+        // Função para atualizar o placeholder e tipo do campo de valor do body
         function updateBodyValuePlaceholder(selectElement) {
-            const valueInput = selectElement.previousElementSibling; // O input de valor é o elemento anterior
+            const valueInput = selectElement.previousElementSibling.previousElementSibling;
             if (selectElement.value === 'number') {
                 valueInput.value = '0.00';
-                valueInput.type = 'number'; // Muda o tipo para number para validação do navegador
-                valueInput.step = '0.01'; // Permite decimais
+                valueInput.type = 'number';
+                valueInput.step = '0.01';
             } else {
                 valueInput.value = 'string';
                 valueInput.type = 'text';
@@ -219,28 +236,30 @@
         }
 
         // Função para adicionar um novo campo de body
-        function addBodyField(key = '', value = '', value_type = 'text', hide = false) {
+        function addBodyField(key = 'input_text', value = '', value_type = 'text', alias = '', hide = false) {
             const container = document.getElementById('bodyContainer');
             const newBodyDiv = document.createElement('div');
-            newBodyDiv.className = 'flex flex-wrap items-center space-x-2 space-y-2 md:space-y-0';
+            newBodyDiv.className = 'flex flex-wrap items-center gap-2 p-2 border rounded-md';
             const initialValue = (value_type === 'number' ? (value === '' ? '0.00' : value) : (value === '' ? 'string' : value));
             const inputType = (value_type === 'number' ? 'number' : 'text');
-            const inputStep = (value_type === 'number' ? '0.01' : '');
+            const inputStep = (value_type === 'number' ? 'step="0.01"' : '');
 
             newBodyDiv.innerHTML = `
                 <input type="text" name="bodyKey" value="${key}" placeholder="Chave do Dado"
                        class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
-                <input type="${inputType}" name="bodyValue" value="${initialValue}" placeholder="Valor do Dado" step="${inputStep}"
+                <input type="${inputType}" name="bodyValue" value="${initialValue}" placeholder="Valor do Dado" ${inputStep}
                        class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
                 <select name="bodyValueType" onchange="updateBodyValuePlaceholder(this)"
                         class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     <option value="text" ${value_type === 'text' ? 'selected' : ''}>Texto</option>
                     <option value="number" ${value_type === 'number' ? 'selected' : ''}>Número</option>
                 </select>
-                <label class="flex items-center space-x-1 text-sm text-gray-700">
-                    <input type="checkbox" name="bodyHide" ${hide ? 'checked' : ''} class="rounded text-blue-600 focus:ring-blue-500">
+                <label class="flex items-center space-x-1 text-sm text-gray-700 cursor-pointer">
+                    <input type="checkbox" name="bodyHide" onchange="toggleAliasField(this)" ${hide ? 'checked' : ''} class="rounded text-blue-600 focus:ring-blue-500">
                     <span>Esconder</span>
                 </label>
+                <input type="text" name="bodyAlias" value="${alias}" placeholder="Alias do Dado"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px] ${hide ? 'hidden' : ''}">
                 <button type="button" onclick="removeField(this)"
                         class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
                     Remover
@@ -285,7 +304,7 @@
 
         // Adiciona um ouvinte de evento para a submissão do formulário
         document.getElementById('moduleForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Previne o comportamento padrão de submissão do formulário
+            event.preventDefault();
 
             const moduleId = document.getElementById('moduleId').value;
             const moduleTitle = document.getElementById('moduleTitle').value;
@@ -293,49 +312,47 @@
             const url = document.getElementById('url').value;
             const hmac = document.getElementById('hmac').value;
 
-            // Coleta todos os pares de chave/valor e o estado 'hide' dos parâmetros
-            const paramKeys = document.querySelectorAll('input[name="paramKey"]');
-            const paramValues = document.querySelectorAll('input[name="paramValue"]');
-            const paramHides = document.querySelectorAll('input[name="paramHide"]');
+            // Coleta dados dos parâmetros
             const params = [];
-
-            for (let i = 0; i < paramKeys.length; i++) {
-                const key = paramKeys[i].value;
-                const value = paramValues[i].value;
-                const hide = paramHides[i].checked;
+            document.querySelectorAll('#paramsContainer > div').forEach(div => {
+                const key = div.querySelector('[name="paramKey"]').value;
+                const value = div.querySelector('[name="paramValue"]').value;
+                const hide = div.querySelector('[name="paramHide"]').checked;
+                const alias = div.querySelector('[name="paramAlias"]').value;
                 if (key && value) {
-                    params.push({ key: key, value: value, hide: hide });
+                    const paramData = { key, value, hide };
+                    if (!hide) {
+                        paramData.alias = alias;
+                    }
+                    params.push(paramData);
                 }
-            }
+            });
 
-            // Coleta os dados do body se a seção estiver visível
+            // Coleta dados do body se visível
             const body = [];
             if (!document.getElementById('bodySection').classList.contains('hidden')) {
-                const bodyKeys = document.querySelectorAll('input[name="bodyKey"]');
-                const bodyValues = document.querySelectorAll('input[name="bodyValue"]');
-                const bodyValueTypes = document.querySelectorAll('select[name="bodyValueType"]');
-                const bodyHides = document.querySelectorAll('input[name="bodyHide"]');
+                document.querySelectorAll('#bodyContainer > div').forEach(div => {
+                    const key = div.querySelector('[name="bodyKey"]').value;
+                    let value = div.querySelector('[name="bodyValue"]').value;
+                    const value_type = div.querySelector('[name="bodyValueType"]').value;
+                    const hide = div.querySelector('[name="bodyHide"]').checked;
+                    const alias = div.querySelector('[name="bodyAlias"]').value;
 
-                for (let i = 0; i < bodyKeys.length; i++) {
-                    const key = bodyKeys[i].value;
-                    let value = bodyValues[i].value;
-                    const value_type = bodyValueTypes[i].value;
-                    const hide = bodyHides[i].checked;
-
-                    // Converte o valor para número se o tipo for 'number'
                     if (value_type === 'number') {
                         value = parseFloat(value);
-                        if (isNaN(value)) {
-                            value = 0.00; // Define um valor padrão se a conversão falhar
+                        if (isNaN(value)) value = 0.00;
+                    }
+
+                    if (key && (value !== '' || value_type === 'number')) {
+                        const bodyData = { key, value, value_type, hide };
+                        if (!hide) {
+                           bodyData.alias = alias;
                         }
+                        body.push(bodyData);
                     }
-
-                    if (key && (value !== '' || value_type === 'number')) { // Inclui se chave existe e valor não vazio ou é número
-                        body.push({ key: key, value: value, value_type: value_type, hide: hide });
-                    }
-                }
+                });
             }
-
+            
             // Constrói o objeto JSON final
             const moduleData = {
                 module: {
@@ -348,23 +365,25 @@
                 }
             };
 
-            // Adiciona o array 'body' apenas se houver dados e o método HTTP permitir
+            // Adiciona o array 'body' se necessário
             if (body.length > 0 && (methodHttp === 'POST' || methodHttp === 'PUT' || methodHttp === 'DELETE')) {
                 moduleData.module.body = body;
             }
 
-            // Exibe o JSON no console e na área de saída com destaque de sintaxe
             const jsonString = JSON.stringify(moduleData, null, 2);
-            console.log(jsonString);
             document.getElementById('jsonOutput').innerHTML = syntaxHighlight(jsonString);
         });
 
-        // Adiciona ouvintes de evento e inicializa o formulário ao carregar a página
+        // Inicializa o formulário ao carregar a página
         window.onload = function() {
-            generateModuleId(); // Gera um ID inicial ao carregar
-            toggleBodySection(); // Ajusta a visibilidade da seção de body inicialmente
-            document.getElementById('methodHttp').addEventListener('change', toggleBodySection); // Adiciona ouvinte para mudanças no método HTTP
-            // Já existe um campo inicial no HTML para params e body.
+            generateModuleId();
+            toggleBodySection();
+            document.getElementById('methodHttp').addEventListener('change', toggleBodySection);
+            
+            // Garante que o estado inicial do alias está correto para os campos pré-existentes
+            document.querySelectorAll('input[name="paramHide"], input[name="bodyHide"]').forEach(checkbox => {
+                toggleAliasField(checkbox);
+            });
         };
     </script>
 </body>
