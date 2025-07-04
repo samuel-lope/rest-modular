@@ -40,29 +40,24 @@
         <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Configuração do Módulo</h1>
 
         <form id="moduleForm" class="space-y-6">
-            <!-- Campo Module ID -->
+            <!-- Campos Principais -->
             <div>
                 <label for="moduleId" class="block text-sm font-medium text-gray-700 mb-1">ID do Módulo:</label>
                 <div class="flex items-center space-x-2">
                     <input type="text" id="moduleId" name="moduleId" readonly
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 sm:text-sm"
-                           value="">
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 sm:text-sm">
                     <button type="button" onclick="generateModuleId()"
                             class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
                         Gerar ID
                     </button>
                 </div>
             </div>
-
-            <!-- Campo Module Title -->
             <div>
                 <label for="moduleTitle" class="block text-sm font-medium text-gray-700 mb-1">Título do Módulo:</label>
                 <input type="text" id="moduleTitle" name="moduleTitle" value="input_text"
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                        placeholder="Ex: Título do Meu Módulo">
             </div>
-
-            <!-- Campo Método HTTP -->
             <div>
                 <label for="methodHttp" class="block text-sm font-medium text-gray-700 mb-1">Método HTTP:</label>
                 <select id="methodHttp" name="methodHttp"
@@ -73,16 +68,12 @@
                     <option value="DELETE">DELETE</option>
                 </select>
             </div>
-
-            <!-- Campo URL -->
             <div>
                 <label for="url" class="block text-sm font-medium text-gray-700 mb-1">URL:</label>
                 <input type="url" id="url" name="url" value="input_url"
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                        placeholder="Ex: https://api.example.com/data">
             </div>
-
-            <!-- Campo HMAC -->
             <div>
                 <label for="hmac" class="block text-sm font-medium text-gray-700 mb-1">HMAC:</label>
                 <input type="text" id="hmac" name="hmac" value="input_hmac"
@@ -94,23 +85,7 @@
             <div class="border-t border-gray-200 pt-6 mt-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">Parâmetros (params)</h2>
                 <div id="paramsContainer" class="space-y-4">
-                    <!-- Template inicial para o primeiro parâmetro -->
-                    <div class="flex flex-wrap items-center gap-2 p-2 border rounded-md">
-                        <input type="text" name="paramKey" value="input_text" placeholder="Chave do Parâmetro"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
-                        <input type="text" name="paramValue" value="input_text" placeholder="Valor do Parâmetro"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
-                        <label class="flex items-center space-x-1 text-sm text-gray-700 cursor-pointer">
-                            <input type="checkbox" name="paramHide" onchange="toggleAliasField(this)" class="rounded text-blue-600 focus:ring-blue-500">
-                            <span>Esconder</span>
-                        </label>
-                        <input type="text" name="paramAlias" placeholder="Alias do Parâmetro"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
-                        <button type="button" onclick="removeField(this)"
-                                class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
-                            Remover
-                        </button>
-                    </div>
+                    <!-- Parâmetros dinâmicos aqui -->
                 </div>
                 <button type="button" onclick="addParamField()"
                         class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
@@ -122,28 +97,7 @@
             <div id="bodySection" class="border-t border-gray-200 pt-6 mt-6 hidden">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">Dados (body)</h2>
                 <div id="bodyContainer" class="space-y-4">
-                    <!-- Template inicial para o primeiro item do body -->
-                    <div class="flex flex-wrap items-center gap-2 p-2 border rounded-md">
-                        <input type="text" name="bodyKey" value="input_text" placeholder="Chave do Dado"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
-                        <input type="text" name="bodyValue" value="string" placeholder="Valor do Dado"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
-                        <select name="bodyValueType" onchange="updateBodyValuePlaceholder(this)"
-                                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <option value="text">Texto</option>
-                            <option value="number">Número</option>
-                        </select>
-                        <label class="flex items-center space-x-1 text-sm text-gray-700 cursor-pointer">
-                            <input type="checkbox" name="bodyHide" onchange="toggleAliasField(this)" class="rounded text-blue-600 focus:ring-blue-500">
-                            <span>Esconder</span>
-                        </label>
-                         <input type="text" name="bodyAlias" placeholder="Alias do Dado"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[120px]">
-                        <button type="button" onclick="removeField(this)"
-                                class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
-                            Remover
-                        </button>
-                    </div>
+                    <!-- Itens do Body dinâmicos aqui -->
                 </div>
                 <button type="button" onclick="addBodyField()"
                         class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
@@ -162,8 +116,29 @@
 
         <!-- Área para exibir o JSON gerado -->
         <div class="mt-8 p-4 bg-gray-50 rounded-md border border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">JSON Gerado:</h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-xl font-semibold text-gray-800">JSON Gerado:</h2>
+                <button type="button" id="copyJsonBtn" onclick="copyJson()"
+                        class="px-4 py-2 bg-gray-500 text-white text-sm rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200">
+                    Copiar JSON
+                </button>
+            </div>
             <pre id="jsonOutput" class="bg-gray-800 text-white p-4 rounded-md overflow-auto text-sm"></pre>
+        </div>
+
+        <!-- Seção de Importação de JSON -->
+        <div class="mt-8 border-t border-gray-200 pt-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Importar JSON</h2>
+            <div class="space-y-4">
+                <textarea id="jsonImport" rows="8"
+                          class="w-full p-4 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          placeholder="Cole o JSON aqui para preencher o formulário..."></textarea>
+                <button type="button" onclick="importJson()"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                    Importar e Preencher Formulário
+                </button>
+                 <p id="importStatus" class="text-sm text-center text-gray-500 mt-2"></p>
+            </div>
         </div>
     </div>
 
@@ -220,11 +195,13 @@
                 </button>
             `;
             container.appendChild(newParamDiv);
+            // Garante que o estado do alias está correto após adicionar
+            toggleAliasField(newParamDiv.querySelector('[name="paramHide"]'));
         }
 
         // Função para atualizar o placeholder e tipo do campo de valor do body
         function updateBodyValuePlaceholder(selectElement) {
-            const valueInput = selectElement.previousElementSibling.previousElementSibling;
+            const valueInput = selectElement.parentElement.querySelector('[name="bodyValue"]');
             if (selectElement.value === 'number') {
                 valueInput.value = '0.00';
                 valueInput.type = 'number';
@@ -232,6 +209,7 @@
             } else {
                 valueInput.value = 'string';
                 valueInput.type = 'text';
+                valueInput.removeAttribute('step');
             }
         }
 
@@ -266,6 +244,8 @@
                 </button>
             `;
             container.appendChild(newBodyDiv);
+             // Garante que o estado do alias está correto após adicionar
+            toggleAliasField(newBodyDiv.querySelector('[name="bodyHide"]'));
         }
 
         // Função para destaque de sintaxe JSON
@@ -302,6 +282,99 @@
             }
         }
 
+        // Função para copiar o JSON gerado
+        function copyJson() {
+            const jsonOutput = document.getElementById('jsonOutput');
+            const jsonText = jsonOutput.textContent || jsonOutput.innerText;
+            const copyBtn = document.getElementById('copyJsonBtn');
+
+            // Usa a API do Clipboard se disponível, com fallback para execCommand
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(jsonText).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copiado!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                });
+            } else {
+                // Fallback para ambientes onde a API do clipboard não é segura
+                const textArea = document.createElement('textarea');
+                textArea.value = jsonText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copiado!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Falha ao copiar o texto: ', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Função para importar JSON e preencher o formulário
+        function importJson() {
+            const jsonString = document.getElementById('jsonImport').value;
+            const statusEl = document.getElementById('importStatus');
+            
+            if (!jsonString.trim()) {
+                statusEl.textContent = 'O campo de importação está vazio.';
+                statusEl.className = 'text-sm text-center text-yellow-600 mt-2';
+                return;
+            }
+
+            try {
+                const data = JSON.parse(jsonString);
+                const moduleData = data.module;
+
+                if (!moduleData) {
+                    throw new Error("Formato de JSON inválido. A chave 'module' não foi encontrada.");
+                }
+
+                // Limpa os campos dinâmicos
+                document.getElementById('paramsContainer').innerHTML = '';
+                document.getElementById('bodyContainer').innerHTML = '';
+
+                // Preenche os campos principais
+                document.getElementById('moduleId').value = moduleData.moduleId || '';
+                document.getElementById('moduleTitle').value = moduleData.moduleTitle || '';
+                document.getElementById('methodHttp').value = moduleData.method_http || 'GET';
+                document.getElementById('url').value = moduleData.url || '';
+                document.getElementById('hmac').value = moduleData.hmac || '';
+
+                // Preenche os parâmetros
+                if (moduleData.params && Array.isArray(moduleData.params)) {
+                    moduleData.params.forEach(p => {
+                        addParamField(p.key, p.value, p.alias, p.hide);
+                    });
+                }
+
+                // Preenche o body
+                if (moduleData.body && Array.isArray(moduleData.body)) {
+                    moduleData.body.forEach(b => {
+                        addBodyField(b.key, b.value, b.value_type, b.alias, b.hide);
+                    });
+                }
+
+                // Ajusta a visibilidade da seção body e dispara um evento de submit para atualizar o JSON gerado
+                toggleBodySection();
+                document.getElementById('moduleForm').dispatchEvent(new Event('submit'));
+                
+                statusEl.textContent = 'JSON importado e formulário preenchido com sucesso!';
+                statusEl.className = 'text-sm text-center text-green-600 mt-2';
+
+            } catch (error) {
+                console.error("Erro ao importar JSON:", error);
+                statusEl.textContent = `Erro ao importar: ${error.message}`;
+                statusEl.className = 'text-sm text-center text-red-600 mt-2';
+            }
+        }
+
         // Adiciona um ouvinte de evento para a submissão do formulário
         document.getElementById('moduleForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -319,7 +392,7 @@
                 const value = div.querySelector('[name="paramValue"]').value;
                 const hide = div.querySelector('[name="paramHide"]').checked;
                 const alias = div.querySelector('[name="paramAlias"]').value;
-                if (key && value) {
+                if (key) { // Permite valor vazio
                     const paramData = { key, value, hide };
                     if (!hide) {
                         paramData.alias = alias;
@@ -343,7 +416,7 @@
                         if (isNaN(value)) value = 0.00;
                     }
 
-                    if (key && (value !== '' || value_type === 'number')) {
+                    if (key) { // Permite valor vazio
                         const bodyData = { key, value, value_type, hide };
                         if (!hide) {
                            bodyData.alias = alias;
@@ -361,14 +434,10 @@
                     method_http: methodHttp,
                     url: url,
                     hmac: hmac,
-                    params: params
+                    params: params,
+                    ...(body.length > 0 && (methodHttp === 'POST' || methodHttp === 'PUT' || methodHttp === 'DELETE') && { body: body })
                 }
             };
-
-            // Adiciona o array 'body' se necessário
-            if (body.length > 0 && (methodHttp === 'POST' || methodHttp === 'PUT' || methodHttp === 'DELETE')) {
-                moduleData.module.body = body;
-            }
 
             const jsonString = JSON.stringify(moduleData, null, 2);
             document.getElementById('jsonOutput').innerHTML = syntaxHighlight(jsonString);
@@ -380,11 +449,11 @@
             toggleBodySection();
             document.getElementById('methodHttp').addEventListener('change', toggleBodySection);
             
-            // Garante que o estado inicial do alias está correto para os campos pré-existentes
-            document.querySelectorAll('input[name="paramHide"], input[name="bodyHide"]').forEach(checkbox => {
-                toggleAliasField(checkbox);
-            });
+            // Adiciona um campo inicial para facilitar
+            addParamField();
+            addBodyField();
         };
     </script>
 </body>
 </html>
+
