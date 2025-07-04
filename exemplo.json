@@ -1,0 +1,37 @@
+{
+  "module": {
+    "moduleId": "63DAFE906829B76A",
+    "moduleTitle": "Gerar Código",
+    "method_http": "POST",
+    "url": "https://api.samuellopes.com.br/v1/codegen",
+    "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
+    "params": [
+      {
+        "key": "modo",
+        "value": "personal",
+        "hide": true
+      }
+    ],
+    "body": [
+      {
+        "key": "formato",
+        "value": "*****-******",
+        "value_type": "text",
+        "hide": false,
+        "alias": "Formatação"
+      },
+      {
+        "key": "seed",
+        "value": "e31bfb0297279d252219424ec496809a",
+        "value_type": "text",
+        "hide": true
+      },
+      {
+        "key": "caracteres",
+        "value": "abcdef0123456789",
+        "value_type": "text",
+        "hide": true
+      }
+    ]
+  }
+}
