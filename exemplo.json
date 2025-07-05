@@ -32,6 +32,14 @@
         "value_type": "text",
         "hide": true
       }
+    ],
+    "resFormat": [
+      {
+        "key": "cod",
+        "value": "valor padrão definido pelo usuário que será substituído pelo valor da resposta.",
+        "value_type": "text",
+        "alias": "Código Gerado"
+      }
     ]
   }
 }

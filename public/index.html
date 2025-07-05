@@ -141,7 +141,36 @@
             overflow-x: auto;
         }
 
-        /* Media Queries para Responsividade (substituindo sm:, md:, lg:) */
+        /* Tabela de Resultado */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .result-table td {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        }
+
+        .result-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .result-table td:first-child {
+            font-weight: 500;
+            color: #4b5563; /* gray-600 */
+            width: 40%;
+        }
+
+        .result-table td:last-child {
+            font-weight: 500;
+            color: #1f2937; /* gray-800 */
+            font-family: 'Courier New', Courier, monospace;
+            word-break: break-all;
+        }
+
+        /* Media Queries para Responsividade */
         @media (min-width: 768px) { /* md: */
             #modules-container {
                 grid-template-columns: repeat(2, 1fr);
@@ -183,7 +212,10 @@
                     "body": [
                         {"key": "formato", "value": "***********", "value_type": "text", "hide": false, "alias": "Formatação"},
                         {"key": "seed", "value": "e31bfb0297279d252219424ec496809a", "value_type": "text", "hide": false, "alias": "Seed"},
-                        {"key": "caracteres", "value": "abcdef0123456789", "value_type": "text", "hide": false, "alias": "Caracteres"}
+                        {"key": "caracteres", "value": "abcdef0123456789", "value_type": "text", "hide": false}
+                    ],
+                    "resFormat": [
+                        {"key": "cod", "value": "", "value_type": "text", "alias": "Código Gerado"}
                     ]
                 }
             },
@@ -199,19 +231,18 @@
             },
             {
               "module": {
-                "moduleId": "42AE9CAC754249BD",
-                "moduleTitle": "Criar CPF Válido",
+                "moduleId": "5E8C78ABCBB69C4A",
+                "moduleTitle": "Criar CNPJ",
                 "method_http": "GET",
-                "url": "https://api.samuellopes.com.br/v1/geraCPF",
+                "url": "https://api.samuellopes.com.br/v1/geraCNPJ",
                 "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
-              "params": [
-                            {
-                                "key": "prefix",
-                                "value": "",
-                                "hide": false,
-                                "alias": "Prefixo (até 9 números)"
-                            }
-                        ]
+                "params": [
+                  { "key": "filial", "value": "0001", "hide": false, "alias": "Código de filial (4 dígitos)"},
+                  { "key": "prefix", "value": "", "hide": false, "alias": "Até 8 números iniciais"}
+                ],
+                "resFormat": [
+                  { "key": "resultado", "value": "00.000.000/0000-00", "value_type": "text", "alias": "CNPJ Criado"}
+                ]
               }
             }
         ];
@@ -222,7 +253,7 @@
             const container = document.getElementById('modules-container');
 
             const card = document.createElement('div');
-            card.className = 'module-card'; // Classe principal do card
+            card.className = 'module-card';
             card.id = `module-${moduleId}`;
 
             let formFields = '';
@@ -256,7 +287,7 @@
                 </form>
                 <div class="result-container">
                     <h3>Resultado:</h3>
-                    <div id="result-${moduleId}" class="result-textarea">Aguardando execução...</div>
+                    <div id="result-${moduleId}">Aguardando execução...</div>
                 </div>
             `;
 
@@ -271,8 +302,9 @@
             event.preventDefault();
             const form = event.target;
             const resultEl = document.getElementById(`result-${moduleConfig.moduleId}`);
-            resultEl.textContent = 'Executando...';
-            resultEl.style.color = '#e2e8f0';
+            resultEl.innerHTML = 'Executando...'; // Limpa e mostra status
+            resultEl.className = ''; // Reseta classes
+            resultEl.style.color = '#4b5563';
 
             const formData = new FormData(form);
 
@@ -314,9 +346,31 @@
                 const response = await fetch(finalUrl, fetchOptions);
                 const responseData = await response.json();
                 if (!response.ok) throw { status: response.status, data: responseData };
-                resultEl.textContent = JSON.stringify(responseData, null, 2);
+
+                resultEl.innerHTML = ''; // Limpa o "Executando..."
+
+                // Se resFormat existe, cria uma tabela
+                if (moduleConfig.resFormat && moduleConfig.resFormat.length > 0) {
+                    const table = document.createElement('table');
+                    table.className = 'result-table';
+                    let tableBody = '';
+                    moduleConfig.resFormat.forEach(item => {
+                        const alias = item.alias || item.key;
+                        const value = responseData[item.key];
+                        const displayValue = value !== undefined ? value : '(chave não encontrada)';
+                        tableBody += `<tr><td>${alias}</td><td>${displayValue}</td></tr>`;
+                    });
+                    table.innerHTML = tableBody;
+                    resultEl.appendChild(table);
+                } else {
+                    // Se não, exibe o JSON bruto
+                    resultEl.className = 'result-textarea';
+                    resultEl.textContent = JSON.stringify(responseData, null, 2);
+                }
+
             } catch (error) {
                 console.error('Erro na requisição:', error);
+                resultEl.className = 'result-textarea'; // Usa a mesma caixa para erros
                 let errorMessage = `Erro: ${error.message || 'Falha na requisição.'}\n\n`;
                 if (error.status) errorMessage += `Status: ${error.status}\n`;
                 if(error.data) errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
@@ -339,4 +393,3 @@
 </body>
 </html>
 
-<!-- End of file: public/index.html -->
