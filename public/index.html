@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulos de Requisição Dinâmica</title>
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter para todo o corpo */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        /* Estilo para o textarea de resultado */
+        .result-textarea {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1e293b; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
+            border-radius: 0.375rem;
+            padding: 1rem;
+            min-height: 150px;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <header class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 text-center">Painel de Módulos</h1>
+        <p class="text-center text-gray-600 mt-2">Formulários gerados dinamicamente para execução de requisições HTTP.</p>
+    </header>
+
+    <!-- O container onde os cards dos módulos serão inseridos -->
+    <main id="modules-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Os cards serão gerados pelo JavaScript aqui -->
+    </main>
+
+    <script>
+        // ===================================================================================
+        // ÁREA DE CONFIGURAÇÃO:
+        // Cole aqui um ou mais objetos JSON de definição de módulo dentro do array.
+        // ===================================================================================
+        const moduleDefinitions = [
+            {
+                "module": {
+                    "moduleId": "63DAFE906829B76A",
+                    "moduleTitle": "Gerar Código",
+                    "method_http": "POST",
+                    "url": "https://api.samuellopes.com.br/v1/codegen",
+                    "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
+                    "params": [
+                        {
+                            "key": "modo",
+                            "value": "personal",
+                            "hide": true
+                        }
+                    ],
+                    "body": [
+                        {
+                            "key": "formato",
+                            "value": "*****-******",
+                            "value_type": "text",
+                            "hide": false,
+                            "alias": "Formatação"
+                        },
+                        {
+                            "key": "seed",
+                            "value": "e31bfb0297279d252219424ec496809a",
+                            "value_type": "text",
+                            "hide": false,
+                            "alias": "Seed"
+                        },
+                        {
+                            "key": "caracteres",
+                            "value": "abcdef0123456789",
+                            "value_type": "text",
+                            "hide": false
+                        }
+                    ]
+                }
+            },
+            {
+              "module": {
+                "moduleId": "75122A6533ED0D14",
+                "moduleTitle": "Validar CPF",
+                "method_http": "GET",
+                "url": "https://api.samuellopes.com.br/v1/validaCPF",
+                "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
+                "params": [
+                  {
+                    "key": "CPF",
+                    "value": "000.000.000-00",
+                    "hide": false,
+                    "alias": "CPF para validar"
+                  }
+                ]
+              }
+            }
+        ];
+        // ===================================================================================
+
+        /**
+         * Cria e anexa um único card de módulo ao container principal.
+         * @param {object} moduleConfig - A configuração completa de um módulo.
+         */
+        function createModuleCard(moduleConfig) {
+            const { moduleId, moduleTitle, params, body } = moduleConfig;
+            const container = document.getElementById('modules-container');
+
+            const card = document.createElement('div');
+            card.className = 'bg-white p-6 rounded-xl shadow-lg flex flex-col space-y-4';
+            card.id = `module-${moduleId}`;
+
+            let formFields = '';
+            
+            // Função auxiliar para criar campos de formulário
+            const createFieldHtml = (item) => {
+                const inputName = item.key;
+                if (item.hide) {
+                    return `<input type="hidden" name="${inputName}" value="${item.value}">`;
+                } else {
+                    return `
+                        <div class="flex flex-col">
+                            <label for="field-${moduleId}-${inputName}" class="mb-1 text-sm font-medium text-gray-700">${item.alias || inputName}</label>
+                            <input type="${item.value_type || 'text'}" id="field-${moduleId}-${inputName}" name="${inputName}" value="${item.value}"
+                                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                    `;
+                }
+            };
+
+            // Processa campos de params para criar os inputs do formulário
+            if (params && Array.isArray(params)) {
+                params.forEach(item => {
+                    formFields += createFieldHtml(item);
+                });
+            }
+
+            // Processa campos do body para criar os inputs do formulário
+            if (body && Array.isArray(body)) {
+                body.forEach(item => {
+                    formFields += createFieldHtml(item);
+                });
+            }
+
+            card.innerHTML = `
+                <h2 class="text-2xl font-bold text-gray-800 text-center">${moduleTitle}</h2>
+                <form class="space-y-4">
+                    ${formFields}
+                    <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        Executar
+                    </button>
+                </form>
+                <div class="border-t border-gray-200 pt-4">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Resultado:</h3>
+                    <div id="result-${moduleId}" class="result-textarea">Aguardando execução...</div>
+                </div>
+            `;
+
+            container.appendChild(card);
+
+            // Adiciona o event listener para o formulário recém-criado
+            card.querySelector('form').addEventListener('submit', (event) => {
+                handleFormSubmit(event, moduleConfig);
+            });
+        }
+
+        /**
+         * Lida com a submissão do formulário, monta e executa a requisição fetch.
+         * @param {Event} event - O evento de submissão do formulário.
+         * @param {object} moduleConfig - A configuração do módulo correspondente.
+         */
+        async function handleFormSubmit(event, moduleConfig) {
+            event.preventDefault();
+            const form = event.target;
+            const resultEl = document.getElementById(`result-${moduleConfig.moduleId}`);
+            resultEl.textContent = 'Executando...';
+            resultEl.style.color = '#e2e8f0'; // Reseta a cor para o padrão
+
+            const formData = new FormData(form);
+
+            // 1. Construir a URL final com HMAC e parâmetros do formulário
+            const urlParams = new URLSearchParams();
+            if (moduleConfig.hmac) {
+                urlParams.append('hmac', moduleConfig.hmac);
+            }
+            if (moduleConfig.params && Array.isArray(moduleConfig.params)) {
+                moduleConfig.params.forEach(p => {
+                    const value = formData.get(p.key); // Pega o valor atual do formulário
+                    urlParams.append(p.key, value);
+                });
+            }
+            const finalUrl = `${moduleConfig.url}?${urlParams.toString()}`;
+
+            // 2. Coletar dados do formulário para o body
+            const bodyPayload = {};
+            if (moduleConfig.body && Array.isArray(moduleConfig.body)) {
+                 moduleConfig.body.forEach(b => {
+                    const key = b.key;
+                    let value = formData.get(key);
+                    if (b.value_type === 'number') {
+                        bodyPayload[key] = parseFloat(value) || 0;
+                    } else {
+                        bodyPayload[key] = value;
+                    }
+                });
+            }
+            
+            // 3. Configurar a requisição Fetch
+            const fetchOptions = {
+                method: moduleConfig.method_http.toUpperCase(),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            // Adiciona o body apenas para métodos que o suportam e se houver dados
+            if (['POST', 'PUT', 'DELETE'].includes(fetchOptions.method) && Object.keys(bodyPayload).length > 0) {
+                fetchOptions.body = JSON.stringify(bodyPayload);
+            }
+            
+            // 4. Executar a requisição e exibir o resultado
+            try {
+                const response = await fetch(finalUrl, fetchOptions);
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    throw { status: response.status, data: responseData };
+                }
+
+                resultEl.textContent = JSON.stringify(responseData, null, 2);
+
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                let errorMessage = `Erro: ${error.message || 'Falha na requisição.'}\n\n`;
+                if (error.status) {
+                    errorMessage += `Status: ${error.status}\n`;
+                }
+                if(error.data) {
+                    errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
+                }
+                resultEl.textContent = errorMessage;
+                resultEl.style.color = '#f87171'; // red-400
+            }
+        }
+
+        // Função principal que é executada quando a página carrega
+        window.onload = function() {
+            if (moduleDefinitions && moduleDefinitions.length > 0) {
+                moduleDefinitions.forEach(config => {
+                    if (config.module) {
+                        createModuleCard(config.module);
+                    }
+                });
+            } else {
+                document.getElementById('modules-container').innerHTML = 
+                    '<p class="text-center text-gray-500 col-span-full">Nenhum módulo definido. Adicione configurações de módulo no script da página.</p>';
+            }
+        };
+    </script>
+</body>
+</html>
+
+<!-- End of index.html -->
