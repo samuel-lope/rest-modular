@@ -18,7 +18,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
-            color: #1f2937; /* Cor de texto padrão (gray-800) */
+            color: #1f2937;
             padding: 2rem;
         }
 
@@ -29,19 +29,19 @@
         }
 
         header h1 {
-            font-size: 2.25rem; /* text-4xl */
+            font-size: 2.25rem;
             font-weight: 800;
         }
 
         header p {
-            color: #4b5563; /* gray-600 */
+            color: #4b5563;
             margin-top: 0.5rem;
         }
 
         /* Container Principal dos Módulos */
         #modules-container {
             display: grid;
-            grid-template-columns: 1fr; /* Padrão para mobile */
+            grid-template-columns: 1fr;
             gap: 2rem;
         }
 
@@ -49,21 +49,56 @@
         .module-card {
             background-color: #ffffff;
             padding: 1.5rem;
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+        }
+        
+        /* Blocos Arrastáveis */
+        .draggable-block {
+            padding: 0.75rem;
+            border: 1px dashed transparent;
+            position: relative;
+            background-color: #ffffff;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        
+        .draggable-block:hover {
+            border-color: #d1d5db; /* gray-300 */
         }
 
-        .module-card h2 {
-            font-size: 1.5rem; /* text-2xl */
+        .drag-handle {
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            color: #9ca3af; /* gray-400 */
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .draggable-block:hover .drag-handle {
+            opacity: 1;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            background-color: #eef2ff; /* indigo-50 */
+        }
+
+        .block-content {
+            margin-left: 1rem; /* Espaço para o handle */
+        }
+
+        .block-content h2 {
+            font-size: 1.5rem;
             font-weight: 700;
             text-align: center;
         }
 
-        /* Formulário dentro do Card */
-        .module-card form {
+        .form-fields-wrapper {
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -76,24 +111,24 @@
 
         .form-field label {
             margin-bottom: 0.25rem;
-            font-size: 0.875rem; /* text-sm */
+            font-size: 0.875rem;
             font-weight: 500;
-            color: #374151; /* gray-700 */
+            color: #374151;
         }
 
         .form-field input {
             padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db; /* border-gray-300 */
+            border: 1px solid #d1d5db;
             border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             font-size: 0.875rem;
         }
 
         .form-field input:focus {
             outline: 2px solid transparent;
             outline-offset: 2px;
-            border-color: #3b82f6; /* focus:border-blue-500 */
-            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5); /* focus:ring-blue-500 */
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5);
         }
 
         .submit-button {
@@ -107,37 +142,36 @@
             font-size: 1rem;
             font-weight: 500;
             color: #ffffff;
-            background-color: #2563eb; /* bg-blue-600 */
+            background-color: #2563eb;
             cursor: pointer;
             transition: background-color 0.2s;
         }
         
         .submit-button:hover {
-            background-color: #1d4ed8; /* hover:bg-blue-700 */
+            background-color: #1d4ed8;
         }
 
         /* Área de Resultado */
         .result-container {
-            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+            border-top: 1px solid #e5e7eb;
             padding-top: 1rem;
         }
 
         .result-container h3 {
-            font-size: 1.125rem; /* text-lg */
+            font-size: 1.125rem;
             font-weight: 600;
-            color: #374151; /* gray-700 */
+            color: #374151;
             margin-bottom: 0.5rem;
         }
         
         .result-textarea {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #1e293b; /* slate-800 */
-            color: #e2e8f0; /* slate-200 */
+            background-color: #1e293b;
+            color: #e2e8f0;
             border-radius: 0.375rem;
             padding: 1rem;
             min-height: 150px;
             white-space: pre;
-            overflow-wrap: normal;
             overflow-x: auto;
         }
 
@@ -150,7 +184,7 @@
 
         .result-table td {
             padding: 0.75rem 0.5rem;
-            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .result-table tr:last-child td {
@@ -159,25 +193,25 @@
 
         .result-table td:first-child {
             font-weight: 500;
-            color: #4b5563; /* gray-600 */
+            color: #4b5563;
             width: 40%;
         }
 
         .result-table td:last-child {
             font-weight: 500;
-            color: #1f2937; /* gray-800 */
+            color: #1f2937;
             font-family: 'Courier New', Courier, monospace;
             word-break: break-all;
         }
 
         /* Media Queries para Responsividade */
-        @media (min-width: 768px) { /* md: */
+        @media (min-width: 768px) {
             #modules-container {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (min-width: 1024px) { /* lg: */
+        @media (min-width: 1024px) {
             #modules-container {
                 grid-template-columns: repeat(3, 1fr);
             }
@@ -198,7 +232,6 @@
     <script>
         // ===================================================================================
         // ÁREA DE CONFIGURAÇÃO:
-        // Cole aqui um ou mais objetos JSON de definição de módulo dentro do array.
         // ===================================================================================
         const moduleDefinitions = [
             {
@@ -212,7 +245,7 @@
                     "body": [
                         {"key": "formato", "value": "***********", "value_type": "text", "hide": false, "alias": "Formatação"},
                         {"key": "seed", "value": "e31bfb0297279d252219424ec496809a", "value_type": "text", "hide": false, "alias": "Seed"},
-                        {"key": "caracteres", "value": "abcdef0123456789", "value_type": "text", "hide": false}
+                        {"key": "caracteres", "value": "abcdef0123456789", "value_type": "text", "hide": false, "alias": "Caracteres"}
                     ],
                     "resFormat": [
                         {"key": "cod", "value": "", "value_type": "text", "alias": "Código Gerado"}
@@ -256,8 +289,28 @@
             card.className = 'module-card';
             card.id = `module-${moduleId}`;
 
-            let formFields = '';
-            
+            // O formulário agora envolve todo o conteúdo do card para manter a funcionalidade do botão
+            const form = document.createElement('form');
+            form.className = 'card-form-container';
+
+            // --- Criação dos Blocos ---
+
+            // Bloco 1: Título
+            const titleBlock = document.createElement('div');
+            titleBlock.className = 'draggable-block';
+            titleBlock.draggable = true;
+            titleBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content">
+                    <h2>${moduleTitle}</h2>
+                </div>
+            `;
+
+            // Bloco 2: Campos do Formulário
+            const fieldsBlock = document.createElement('div');
+            fieldsBlock.className = 'draggable-block';
+            fieldsBlock.draggable = true;
+            let formFieldsHtml = '';
             const createFieldHtml = (item) => {
                 const inputName = item.key;
                 if (item.hide) {
@@ -271,65 +324,116 @@
                     `;
                 }
             };
+            if (params) params.forEach(item => formFieldsHtml += createFieldHtml(item));
+            if (body) body.forEach(item => formFieldsHtml += createFieldHtml(item));
+            fieldsBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content form-fields-wrapper">
+                    ${formFieldsHtml}
+                </div>
+            `;
 
-            if (params && Array.isArray(params)) {
-                params.forEach(item => formFields += createFieldHtml(item));
-            }
-            if (body && Array.isArray(body)) {
-                body.forEach(item => formFields += createFieldHtml(item));
-            }
-
-            card.innerHTML = `
-                <h2>${moduleTitle}</h2>
-                <form>
-                    ${formFields}
+            // Bloco 3: Botão de Execução
+            const buttonBlock = document.createElement('div');
+            buttonBlock.className = 'draggable-block';
+            buttonBlock.draggable = true;
+            buttonBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content">
                     <button type="submit" class="submit-button">Executar</button>
-                </form>
-                <div class="result-container">
+                </div>
+            `;
+
+            // Bloco 4: Resultado
+            const resultBlock = document.createElement('div');
+            resultBlock.className = 'draggable-block';
+            resultBlock.draggable = true;
+            resultBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content result-container">
                     <h3>Resultado:</h3>
                     <div id="result-${moduleId}">Aguardando execução...</div>
                 </div>
             `;
 
+            // Montagem do card
+            form.appendChild(titleBlock);
+            form.appendChild(fieldsBlock);
+            form.appendChild(buttonBlock);
+            form.appendChild(resultBlock);
+            card.appendChild(form);
             container.appendChild(card);
 
-            card.querySelector('form').addEventListener('submit', (event) => {
+            // Adiciona listeners
+            form.addEventListener('submit', (event) => {
                 handleFormSubmit(event, moduleConfig);
             });
+            addDragAndDropListeners(form);
+        }
+
+        function addDragAndDropListeners(container) {
+            const draggables = container.querySelectorAll('.draggable-block');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+            });
+
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(container, e.clientY);
+                const dragging = container.querySelector('.dragging');
+                if (dragging) {
+                    if (afterElement == null) {
+                        container.appendChild(dragging);
+                    } else {
+                        container.insertBefore(dragging, afterElement);
+                    }
+                }
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable-block:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
         async function handleFormSubmit(event, moduleConfig) {
             event.preventDefault();
             const form = event.target;
             const resultEl = document.getElementById(`result-${moduleConfig.moduleId}`);
-            resultEl.innerHTML = 'Executando...'; // Limpa e mostra status
-            resultEl.className = ''; // Reseta classes
-            resultEl.style.color = 'cyan';
+            resultEl.innerHTML = 'Executando...';
+            resultEl.className = '';
+            resultEl.style.color = '#fff';
 
             const formData = new FormData(form);
-
             const urlParams = new URLSearchParams();
-            if (moduleConfig.hmac) {
-                urlParams.append('hmac', moduleConfig.hmac);
-            }
-            if (moduleConfig.params && Array.isArray(moduleConfig.params)) {
-                moduleConfig.params.forEach(p => {
-                    const value = formData.get(p.key);
-                    urlParams.append(p.key, value);
-                });
+            if (moduleConfig.hmac) urlParams.append('hmac', moduleConfig.hmac);
+            if (moduleConfig.params) {
+                moduleConfig.params.forEach(p => urlParams.append(p.key, formData.get(p.key)));
             }
             const finalUrl = `${moduleConfig.url}?${urlParams.toString()}`;
 
             const bodyPayload = {};
-            if (moduleConfig.body && Array.isArray(moduleConfig.body)) {
+            if (moduleConfig.body) {
                  moduleConfig.body.forEach(b => {
                     const key = b.key;
                     let value = formData.get(key);
-                    if (b.value_type === 'number') {
-                        bodyPayload[key] = parseFloat(value) || 0;
-                    } else {
-                        bodyPayload[key] = value;
-                    }
+                    bodyPayload[key] = (b.value_type === 'number') ? (parseFloat(value) || 0) : value;
                 });
             }
             
@@ -347,9 +451,8 @@
                 const responseData = await response.json();
                 if (!response.ok) throw { status: response.status, data: responseData };
 
-                resultEl.innerHTML = ''; // Limpa o "Executando..."
+                resultEl.innerHTML = '';
 
-                // Se resFormat existe, cria uma tabela
                 if (moduleConfig.resFormat && moduleConfig.resFormat.length > 0) {
                     const table = document.createElement('table');
                     table.className = 'result-table';
@@ -363,19 +466,18 @@
                     table.innerHTML = tableBody;
                     resultEl.appendChild(table);
                 } else {
-                    // Se não, exibe o JSON bruto
                     resultEl.className = 'result-textarea';
                     resultEl.textContent = JSON.stringify(responseData, null, 2);
                 }
 
             } catch (error) {
                 console.error('Erro na requisição:', error);
-                resultEl.className = 'result-textarea'; // Usa a mesma caixa para erros
+                resultEl.className = 'result-textarea';
                 let errorMessage = `Erro: ${error.message || 'Falha na requisição.'}\n\n`;
                 if (error.status) errorMessage += `Status: ${error.status}\n`;
                 if(error.data) errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
                 resultEl.textContent = errorMessage;
-                resultEl.style.color = '#f87171'; // red-400
+                resultEl.style.color = '#f87171';
             }
         }
 
@@ -386,10 +488,9 @@
                 });
             } else {
                 document.getElementById('modules-container').innerHTML = 
-                    '<p style="text-align: center; color: #6b7280; grid-column: 1 / -1;">Nenhum módulo definido. Adicione configurações de módulo no script da página.</p>';
+                    '<p style="text-align: center; color: #6b7280; grid-column: 1 / -1;">Nenhum módulo definido.</p>';
             }
         };
     </script>
 </body>
 </html>
-
