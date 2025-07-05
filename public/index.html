@@ -6,7 +6,7 @@
     <title>Módulos de Requisição Dinâmica</title>
     <style>
         /* Importa a fonte Inter do Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         /* Reset e Estilos Base */
         * {
@@ -15,11 +15,25 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-dark: #111827; /* gray-900 */
+            --card-bg: #1f2937; /* gray-800 */
+            --border-color: #374151; /* gray-700 */
+            --text-primary: #f9fafb; /* gray-50 */
+            --text-secondary: #9ca3af; /* gray-400 */
+            --accent-color: #3b82f6; /* blue-500 */
+            --accent-hover: #2563eb; /* blue-600 */
+            --error-color: #f87171; /* red-400 */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            color: #1f2937;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Cabeçalho */
@@ -29,13 +43,15 @@
         }
 
         header h1 {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 800;
+            color: var(--text-primary);
         }
 
         header p {
-            color: #4b5563;
+            color: var(--text-secondary);
             margin-top: 0.5rem;
+            font-size: 1.125rem;
         }
 
         /* Container Principal dos Módulos */
@@ -43,65 +59,74 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
         }
 
         /* Card do Módulo */
         .module-card {
-            background-color: #ffffff;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 1rem; /* Aumentado */
+            border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .module-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
         }
         
         /* Blocos Arrastáveis */
         .draggable-block {
-            padding: 0.75rem;
-            border: 1px dashed transparent;
+            padding: 0.5rem;
+            border: 1px solid transparent;
             position: relative;
-            background-color: #ffffff;
-            transition: background-color 0.2s, border-color 0.2s;
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
         }
         
-        .draggable-block:hover {
-            border-color: #d1d5db; /* gray-300 */
-        }
-
         .drag-handle {
             position: absolute;
-            left: -10px;
+            left: -12px;
             top: 50%;
             transform: translateY(-50%);
             cursor: grab;
-            color: #9ca3af; /* gray-400 */
-            opacity: 0;
-            transition: opacity 0.2s;
+            color: #6b7280; /* gray-500 */
+            opacity: 0.5;
+            transition: opacity 0.2s, color 0.2s;
+            padding: 0.5rem;
         }
         
         .draggable-block:hover .drag-handle {
             opacity: 1;
+            color: var(--accent-color);
         }
 
         .dragging {
-            opacity: 0.5;
-            background-color: #eef2ff; /* indigo-50 */
+            opacity: 0.6;
+            background-color: #374151;
         }
 
         .block-content {
-            margin-left: 1rem; /* Espaço para o handle */
+            margin-left: 1.25rem;
         }
 
         .block-content h2 {
             font-size: 1.5rem;
             font-weight: 700;
             text-align: center;
+            padding: 0.5rem 0;
+            color: var(--text-primary);
         }
 
         .form-fields-wrapper {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            padding: 1rem 0;
         }
 
         .form-field {
@@ -110,25 +135,26 @@
         }
 
         .form-field label {
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
             font-size: 0.875rem;
             font-weight: 500;
-            color: #374151;
+            color: var(--text-secondary);
         }
 
         .form-field input {
-            padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-field input:focus {
-            outline: 2px solid transparent;
-            outline-offset: 2px;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5);
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         }
 
         .submit-button {
@@ -136,43 +162,45 @@
             display: flex;
             justify-content: center;
             padding: 0.75rem 1rem;
-            border: 1px solid transparent;
-            border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: none;
+            border-radius: 0.5rem;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             color: #ffffff;
-            background-color: #2563eb;
+            background-color: var(--accent-color);
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
         }
         
         .submit-button:hover {
-            background-color: #1d4ed8;
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
         }
 
         /* Área de Resultado */
         .result-container {
-            border-top: 1px solid #e5e7eb;
             padding-top: 1rem;
+            margin-top: 1rem;
+            border-top: 1px solid var(--border-color);
         }
 
         .result-container h3 {
             font-size: 1.125rem;
             font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
         }
         
         .result-textarea {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #1e293b;
-            color: #e2e8f0;
-            border-radius: 0.375rem;
+            background-color: var(--bg-dark);
+            color: #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
             padding: 1rem;
             min-height: 150px;
             white-space: pre;
             overflow-x: auto;
+            border: 1px solid var(--border-color);
         }
 
         /* Tabela de Resultado */
@@ -183,8 +211,8 @@
         }
 
         .result-table td {
-            padding: 0.75rem 0.5rem;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .result-table tr:last-child td {
@@ -192,14 +220,14 @@
         }
 
         .result-table td:first-child {
-            font-weight: 500;
-            color: #4b5563;
-            width: 40%;
+            font-weight: 600;
+            color: var(--text-secondary);
+            width: 35%;
         }
 
         .result-table td:last-child {
             font-weight: 500;
-            color: #1f2937;
+            color: var(--text-primary);
             font-family: 'Courier New', Courier, monospace;
             word-break: break-all;
         }
@@ -211,7 +239,7 @@
             }
         }
 
-        @media (min-width: 1024px) {
+        @media (min-width: 1280px) { /* xl */
             #modules-container {
                 grid-template-columns: repeat(3, 1fr);
             }
@@ -222,7 +250,7 @@
 <body>
     <header>
         <h1>Painel de Módulos</h1>
-        <p>Formulários gerados dinamicamente para execução de requisições HTTP.</p>
+        <p>Execute requisições HTTP de forma modular e interativa.</p>
     </header>
 
     <main id="modules-container">
@@ -277,7 +305,118 @@
                   { "key": "resultado", "value": "00.000.000/0000-00", "value_type": "text", "alias": "CNPJ Criado"}
                 ]
               }
-            }
+            },
+           {
+  "module": {
+    "moduleId": "5F06BB28477DDE3B",
+    "moduleTitle": "Recibo",
+    "method_http": "POST",
+    "url": "https://api.samuellopes.com.br/v1/recibo",
+    "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
+    "params": [
+      {
+        "key": "objeto",
+        "value": "true",
+        "hide": true,
+        "alias": ""
+      }
+    ],
+    "body": [
+      {
+        "key": "nomePagador",
+        "value": "Anonimo",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "cpfPagador",
+        "value": "000.000.001-91",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "enderecoPagador",
+        "value": "Sem endereco",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "nomeRecebedor",
+        "value": "Anonimo",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "cpfRecebedor",
+        "value": "000.000.002-72",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "enderecoRecebedor",
+        "value": "Sem endereco",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "valor",
+        "value": "0.00",
+        "value_type": "text",
+        "hide": false,
+        "alias": "Informe o Valor"
+      },
+      {
+        "key": "referente",
+        "value": "Sem motivo de pagamento",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "formaPagamento",
+        "value": "Ficticio",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "data",
+        "value": "2025-06-26",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "cidade",
+        "value": "Brasilia",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      },
+      {
+        "key": "observacoes",
+        "value": "Sem observacoes",
+        "value_type": "text",
+        "hide": true,
+        "alias": ""
+      }
+    ],
+    "resFormat": [
+      {
+        "key": "extenso",
+        "value": "",
+        "value_type": "text",
+        "alias": "Valor por Extenso"
+      }
+    ]
+  }
+}
         ];
         // ===================================================================================
 
@@ -289,11 +428,8 @@
             card.className = 'module-card';
             card.id = `module-${moduleId}`;
 
-            // O formulário agora envolve todo o conteúdo do card para manter a funcionalidade do botão
             const form = document.createElement('form');
             form.className = 'card-form-container';
-
-            // --- Criação dos Blocos ---
 
             // Bloco 1: Título
             const titleBlock = document.createElement('div');
@@ -356,7 +492,6 @@
                 </div>
             `;
 
-            // Montagem do card
             form.appendChild(titleBlock);
             form.appendChild(fieldsBlock);
             form.appendChild(buttonBlock);
@@ -364,7 +499,6 @@
             card.appendChild(form);
             container.appendChild(card);
 
-            // Adiciona listeners
             form.addEventListener('submit', (event) => {
                 handleFormSubmit(event, moduleConfig);
             });
@@ -418,7 +552,7 @@
             const resultEl = document.getElementById(`result-${moduleConfig.moduleId}`);
             resultEl.innerHTML = 'Executando...';
             resultEl.className = '';
-            resultEl.style.color = '#fff';
+            resultEl.style.color = 'var(--text-secondary)';
 
             const formData = new FormData(form);
             const urlParams = new URLSearchParams();
@@ -477,7 +611,7 @@
                 if (error.status) errorMessage += `Status: ${error.status}\n`;
                 if(error.data) errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
                 resultEl.textContent = errorMessage;
-                resultEl.style.color = '#f87171';
+                resultEl.style.color = 'var(--error-color)';
             }
         }
 
@@ -488,9 +622,10 @@
                 });
             } else {
                 document.getElementById('modules-container').innerHTML = 
-                    '<p style="text-align: center; color: #6b7280; grid-column: 1 / -1;">Nenhum módulo definido.</p>';
+                    '<p style="text-align: center; color: var(--text-secondary); grid-column: 1 / -1;">Nenhum módulo definido.</p>';
             }
         };
     </script>
 </body>
 </html>
+
