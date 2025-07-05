@@ -4,15 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Módulos de Requisição Dinâmica</title>
-    <!-- Carrega o Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Define a fonte Inter para todo o corpo */
+        /* Importa a fonte Inter do Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+        /* Reset e Estilos Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
+            color: #1f2937; /* Cor de texto padrão (gray-800) */
+            padding: 2rem;
         }
-        /* Estilo para o textarea de resultado */
+
+        /* Cabeçalho */
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800;
+        }
+
+        header p {
+            color: #4b5563; /* gray-600 */
+            margin-top: 0.5rem;
+        }
+
+        /* Container Principal dos Módulos */
+        #modules-container {
+            display: grid;
+            grid-template-columns: 1fr; /* Padrão para mobile */
+            gap: 2rem;
+        }
+
+        /* Card do Módulo */
+        .module-card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* shadow-lg */
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .module-card h2 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* Formulário dentro do Card */
+        .module-card form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500;
+            color: #374151; /* gray-700 */
+        }
+
+        .form-field input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* shadow-sm */
+            font-size: 0.875rem;
+        }
+
+        .form-field input:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #3b82f6; /* focus:border-blue-500 */
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5); /* focus:ring-blue-500 */
+        }
+
+        .submit-button {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            font-size: 1rem;
+            font-weight: 500;
+            color: #ffffff;
+            background-color: #2563eb; /* bg-blue-600 */
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .submit-button:hover {
+            background-color: #1d4ed8; /* hover:bg-blue-700 */
+        }
+
+        /* Área de Resultado */
+        .result-container {
+            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+            padding-top: 1rem;
+        }
+
+        .result-container h3 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600;
+            color: #374151; /* gray-700 */
+            margin-bottom: 0.5rem;
+        }
+        
         .result-textarea {
             font-family: 'Courier New', Courier, monospace;
             background-color: #1e293b; /* slate-800 */
@@ -24,16 +140,29 @@
             overflow-wrap: normal;
             overflow-x: auto;
         }
+
+        /* Media Queries para Responsividade (substituindo sm:, md:, lg:) */
+        @media (min-width: 768px) { /* md: */
+            #modules-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) { /* lg: */
+            #modules-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
     </style>
 </head>
-<body class="p-4 sm:p-6 md:p-8">
-    <header class="mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 text-center">Painel de Módulos</h1>
-        <p class="text-center text-gray-600 mt-2">Formulários gerados dinamicamente para execução de requisições HTTP.</p>
+<body>
+    <header>
+        <h1>Painel de Módulos</h1>
+        <p>Formulários gerados dinamicamente para execução de requisições HTTP.</p>
     </header>
 
-    <!-- O container onde os cards dos módulos serão inseridos -->
-    <main id="modules-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <main id="modules-container">
         <!-- Os cards serão gerados pelo JavaScript aqui -->
     </main>
 
@@ -50,34 +179,11 @@
                     "method_http": "POST",
                     "url": "https://api.samuellopes.com.br/v1/codegen",
                     "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
-                    "params": [
-                        {
-                            "key": "modo",
-                            "value": "personal",
-                            "hide": true
-                        }
-                    ],
+                    "params": [{"key": "modo", "value": "personal", "hide": true}],
                     "body": [
-                        {
-                            "key": "formato",
-                            "value": "*****-******",
-                            "value_type": "text",
-                            "hide": false,
-                            "alias": "Formatação"
-                        },
-                        {
-                            "key": "seed",
-                            "value": "e31bfb0297279d252219424ec496809a",
-                            "value_type": "text",
-                            "hide": false,
-                            "alias": "Seed"
-                        },
-                        {
-                            "key": "caracteres",
-                            "value": "abcdef0123456789",
-                            "value_type": "text",
-                            "hide": false
-                        }
+                        {"key": "formato", "value": "***********", "value_type": "text", "hide": false, "alias": "Formatação"},
+                        {"key": "seed", "value": "e31bfb0297279d252219424ec496809a", "value_type": "text", "hide": false, "alias": "Seed"},
+                        {"key": "caracteres", "value": "abcdef0123456789", "value_type": "text", "hide": false, "alias": "Caracteres"}
                     ]
                 }
             },
@@ -88,114 +194,100 @@
                 "method_http": "GET",
                 "url": "https://api.samuellopes.com.br/v1/validaCPF",
                 "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
-                "params": [
-                  {
-                    "key": "CPF",
-                    "value": "000.000.000-00",
-                    "hide": false,
-                    "alias": "CPF para validar"
-                  }
-                ]
+                "params": [{"key": "CPF", "value": "000.000.000-00", "hide": false, "alias": "CPF para validar"}]
+              }
+            },
+            {
+              "module": {
+                "moduleId": "42AE9CAC754249BD",
+                "moduleTitle": "Criar CPF Válido",
+                "method_http": "GET",
+                "url": "https://api.samuellopes.com.br/v1/geraCPF",
+                "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
+              "params": [
+                            {
+                                "key": "prefix",
+                                "value": "",
+                                "hide": false,
+                                "alias": "Prefixo (até 9 números)"
+                            }
+                        ]
               }
             }
         ];
         // ===================================================================================
 
-        /**
-         * Cria e anexa um único card de módulo ao container principal.
-         * @param {object} moduleConfig - A configuração completa de um módulo.
-         */
         function createModuleCard(moduleConfig) {
             const { moduleId, moduleTitle, params, body } = moduleConfig;
             const container = document.getElementById('modules-container');
 
             const card = document.createElement('div');
-            card.className = 'bg-white p-6 rounded-xl shadow-lg flex flex-col space-y-4';
+            card.className = 'module-card'; // Classe principal do card
             card.id = `module-${moduleId}`;
 
             let formFields = '';
             
-            // Função auxiliar para criar campos de formulário
             const createFieldHtml = (item) => {
                 const inputName = item.key;
                 if (item.hide) {
                     return `<input type="hidden" name="${inputName}" value="${item.value}">`;
                 } else {
                     return `
-                        <div class="flex flex-col">
-                            <label for="field-${moduleId}-${inputName}" class="mb-1 text-sm font-medium text-gray-700">${item.alias || inputName}</label>
-                            <input type="${item.value_type || 'text'}" id="field-${moduleId}-${inputName}" name="${inputName}" value="${item.value}"
-                                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <div class="form-field">
+                            <label for="field-${moduleId}-${inputName}">${item.alias || inputName}</label>
+                            <input type="${item.value_type || 'text'}" id="field-${moduleId}-${inputName}" name="${inputName}" value="${item.value}">
                         </div>
                     `;
                 }
             };
 
-            // Processa campos de params para criar os inputs do formulário
             if (params && Array.isArray(params)) {
-                params.forEach(item => {
-                    formFields += createFieldHtml(item);
-                });
+                params.forEach(item => formFields += createFieldHtml(item));
             }
-
-            // Processa campos do body para criar os inputs do formulário
             if (body && Array.isArray(body)) {
-                body.forEach(item => {
-                    formFields += createFieldHtml(item);
-                });
+                body.forEach(item => formFields += createFieldHtml(item));
             }
 
             card.innerHTML = `
-                <h2 class="text-2xl font-bold text-gray-800 text-center">${moduleTitle}</h2>
-                <form class="space-y-4">
+                <h2>${moduleTitle}</h2>
+                <form>
                     ${formFields}
-                    <button type="submit"
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                        Executar
-                    </button>
+                    <button type="submit" class="submit-button">Executar</button>
                 </form>
-                <div class="border-t border-gray-200 pt-4">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Resultado:</h3>
+                <div class="result-container">
+                    <h3>Resultado:</h3>
                     <div id="result-${moduleId}" class="result-textarea">Aguardando execução...</div>
                 </div>
             `;
 
             container.appendChild(card);
 
-            // Adiciona o event listener para o formulário recém-criado
             card.querySelector('form').addEventListener('submit', (event) => {
                 handleFormSubmit(event, moduleConfig);
             });
         }
 
-        /**
-         * Lida com a submissão do formulário, monta e executa a requisição fetch.
-         * @param {Event} event - O evento de submissão do formulário.
-         * @param {object} moduleConfig - A configuração do módulo correspondente.
-         */
         async function handleFormSubmit(event, moduleConfig) {
             event.preventDefault();
             const form = event.target;
             const resultEl = document.getElementById(`result-${moduleConfig.moduleId}`);
             resultEl.textContent = 'Executando...';
-            resultEl.style.color = '#e2e8f0'; // Reseta a cor para o padrão
+            resultEl.style.color = '#e2e8f0';
 
             const formData = new FormData(form);
 
-            // 1. Construir a URL final com HMAC e parâmetros do formulário
             const urlParams = new URLSearchParams();
             if (moduleConfig.hmac) {
                 urlParams.append('hmac', moduleConfig.hmac);
             }
             if (moduleConfig.params && Array.isArray(moduleConfig.params)) {
                 moduleConfig.params.forEach(p => {
-                    const value = formData.get(p.key); // Pega o valor atual do formulário
+                    const value = formData.get(p.key);
                     urlParams.append(p.key, value);
                 });
             }
             const finalUrl = `${moduleConfig.url}?${urlParams.toString()}`;
 
-            // 2. Coletar dados do formulário para o body
             const bodyPayload = {};
             if (moduleConfig.body && Array.isArray(moduleConfig.body)) {
                  moduleConfig.body.forEach(b => {
@@ -209,59 +301,42 @@
                 });
             }
             
-            // 3. Configurar a requisição Fetch
             const fetchOptions = {
                 method: moduleConfig.method_http.toUpperCase(),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: {'Content-Type': 'application/json'},
             };
 
-            // Adiciona o body apenas para métodos que o suportam e se houver dados
             if (['POST', 'PUT', 'DELETE'].includes(fetchOptions.method) && Object.keys(bodyPayload).length > 0) {
                 fetchOptions.body = JSON.stringify(bodyPayload);
             }
             
-            // 4. Executar a requisição e exibir o resultado
             try {
                 const response = await fetch(finalUrl, fetchOptions);
                 const responseData = await response.json();
-
-                if (!response.ok) {
-                    throw { status: response.status, data: responseData };
-                }
-
+                if (!response.ok) throw { status: response.status, data: responseData };
                 resultEl.textContent = JSON.stringify(responseData, null, 2);
-
             } catch (error) {
                 console.error('Erro na requisição:', error);
                 let errorMessage = `Erro: ${error.message || 'Falha na requisição.'}\n\n`;
-                if (error.status) {
-                    errorMessage += `Status: ${error.status}\n`;
-                }
-                if(error.data) {
-                    errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
-                }
+                if (error.status) errorMessage += `Status: ${error.status}\n`;
+                if(error.data) errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
                 resultEl.textContent = errorMessage;
                 resultEl.style.color = '#f87171'; // red-400
             }
         }
 
-        // Função principal que é executada quando a página carrega
         window.onload = function() {
             if (moduleDefinitions && moduleDefinitions.length > 0) {
                 moduleDefinitions.forEach(config => {
-                    if (config.module) {
-                        createModuleCard(config.module);
-                    }
+                    if (config.module) createModuleCard(config.module);
                 });
             } else {
                 document.getElementById('modules-container').innerHTML = 
-                    '<p class="text-center text-gray-500 col-span-full">Nenhum módulo definido. Adicione configurações de módulo no script da página.</p>';
+                    '<p style="text-align: center; color: #6b7280; grid-column: 1 / -1;">Nenhum módulo definido. Adicione configurações de módulo no script da página.</p>';
             }
         };
     </script>
 </body>
 </html>
 
-<!-- End of index.html -->
+<!-- End of file: public/index.html -->
