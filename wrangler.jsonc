@@ -5,9 +5,12 @@
   "assets": {
     "directory": "./public"
   },
-  "vars": {
-  },
+  "vars": {},
   "kv_namespaces": [
+    {
+      "binding": "CARD_MODULES",
+      "id": "07057aa174d94012b42260abe043786d"
+    }
   ],
   "routes": [
     {

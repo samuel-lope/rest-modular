@@ -22,7 +22,7 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-5xl">
         <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Configuração do Módulo</h1>
 
         <form id="moduleForm" class="space-y-6">
@@ -97,12 +97,19 @@
                 </button>
             </div>
 
-            <!-- Botão de Submissão -->
+            <!-- Botões de Ação -->
             <div class="pt-6 mt-6 border-t border-gray-200">
-                <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                    Gerar JSON
-                </button>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="submit"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        Gerar JSON
+                    </button>
+                    <button type="button" id="saveToKvBtn" onclick="saveToKV()"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200">
+                        Salvar Módulo no KV
+                    </button>
+                </div>
+                <p id="saveStatus" class="text-sm text-center text-gray-500 mt-2 h-4"></p>
             </div>
         </form>
 
@@ -239,22 +246,24 @@
         }
         
         // Função para adicionar um novo campo de formato de resposta
-        function addResFormatField(key = 'key', value = 'default_value', value_type = 'text', alias = 'Alias') {
+        function addResFormatField(key = 'key', value = 'default_value', value_type = 'text', alias = 'Alias', path = '') {
             const container = document.getElementById('resFormatContainer');
             const newDiv = document.createElement('div');
             newDiv.className = 'flex flex-wrap items-center gap-2 p-2 border rounded-md';
             newDiv.innerHTML = `
                 <input type="text" name="resFormatKey" value="${key}" placeholder="Chave da Resposta"
-                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[140px]">
                 <input type="text" name="resFormatValue" value="${value}" placeholder="Valor Padrão (Exemplo)"
-                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[140px]">
                 <select name="resFormatValueType"
                         class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                     <option value="text" ${value_type === 'text' ? 'selected' : ''}>Texto</option>
                     <option value="number" ${value_type === 'number' ? 'selected' : ''}>Número</option>
                 </select>
-                <input type="text" name="resFormatAlias" value="${alias}" placeholder="Alias (Título no Resultado)"
-                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[150px]">
+                <input type="text" name="resFormatAlias" value="${alias}" placeholder="Alias (Título)"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[140px]">
+                <input type="text" name="resFormatPath" value="${path}" placeholder="Caminho (Opcional)"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm min-w-[140px]">
                 <button type="button" onclick="removeField(this)"
                         class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200">
                     Remover
@@ -300,42 +309,93 @@
         // Função para copiar o JSON gerado
         function copyJson() {
             const jsonOutput = document.getElementById('jsonOutput');
-            const jsonText = jsonOutput.innerText; // Usar innerText para obter o texto formatado de <pre>
+            const jsonText = jsonOutput.innerText;
             const copyBtn = document.getElementById('copyJsonBtn');
-
             const textArea = document.createElement('textarea');
             textArea.value = jsonText;
             textArea.style.position = 'fixed';
             textArea.style.top = '0';
             textArea.style.left = '0';
-            textArea.style.width = '2em';
-            textArea.style.height = '2em';
-            textArea.style.padding = '0';
-            textArea.style.border = 'none';
-            textArea.style.outline = 'none';
-            textArea.style.boxShadow = 'none';
-            textArea.style.background = 'transparent';
-
+            textArea.style.opacity = '0';
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    const originalText = copyBtn.textContent;
-                    copyBtn.textContent = 'Copiado!';
-                    setTimeout(() => {
-                        copyBtn.textContent = originalText;
-                    }, 2000);
-                } else {
-                    console.error('Falha ao executar o comando de cópia.');
-                }
-            } catch (err) {
-                console.error('Erro ao tentar copiar o JSON: ', err);
+                document.execCommand('copy');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copiado!';
+                setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
+            } catch (err) { console.error('Falha ao copiar o texto: ', err); }
+            document.body.removeChild(textArea);
+        }
+        
+        // Função para salvar o módulo no KV da Cloudflare (via Worker)
+        async function saveToKV() {
+            const saveBtn = document.getElementById('saveToKvBtn');
+            const saveStatus = document.getElementById('saveStatus');
+
+            // 1. Força a geração do JSON mais recente
+            document.getElementById('moduleForm').dispatchEvent(new Event('submit'));
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // 2. Coleta os dados
+            const moduleTitle = document.getElementById('moduleTitle').value;
+            const moduleId = document.getElementById('moduleId').value;
+            const jsonString = document.getElementById('jsonOutput').innerText;
+
+            if (!moduleTitle || !moduleId || moduleTitle === 'input_text') {
+                saveStatus.textContent = 'Erro: Título e ID do Módulo são obrigatórios para salvar.';
+                saveStatus.className = 'text-sm text-center text-red-500 mt-2';
+                return;
+            }
+            if (!jsonString || jsonString.trim() === '{}' || jsonString.includes("undefined")) {
+                saveStatus.textContent = 'Erro: JSON gerado está vazio ou inválido. Clique em "Gerar JSON" primeiro.';
+                saveStatus.className = 'text-sm text-center text-red-500 mt-2';
+                return;
             }
 
-            document.body.removeChild(textArea);
+            // 3. Constrói a chave do KV
+            const kvKey = `${moduleTitle.toUpperCase().replace(/ /g, '_')}-${moduleId}`;
+
+            // 4. Chamada para o Worker
+            const workerUrl = 'https://rest.sl.app.br/kv/json'; 
+
+            saveBtn.textContent = 'Salvando...';
+            saveBtn.disabled = true;
+            saveStatus.textContent = `Salvando com a chave: ${kvKey}`;
+            saveStatus.className = 'text-sm text-center text-gray-500 mt-2';
+
+            try {
+                const response = await fetch(workerUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: kvKey, value: jsonString }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    throw new Error(`Falha ao salvar. Servidor respondeu: ${errorData || response.statusText}`);
+                }
+                
+                saveBtn.textContent = 'Salvo!';
+                saveBtn.classList.replace('bg-teal-600', 'bg-green-500');
+                saveStatus.textContent = `Módulo salvo com sucesso! Chave: ${kvKey}`;
+                saveStatus.className = 'text-sm text-center text-green-600 mt-2';
+
+            } catch (error) {
+                console.error('Erro ao salvar no KV:', error);
+                saveBtn.textContent = 'Erro!';
+                saveBtn.classList.replace('bg-teal-600', 'bg-red-500');
+                saveStatus.textContent = `Erro: ${error.message}. Verifique o console e a URL do Worker.`;
+                saveStatus.className = 'text-sm text-center text-red-500 mt-2';
+            } finally {
+                setTimeout(() => {
+                    saveBtn.textContent = 'Salvar Módulo no KV';
+                    saveBtn.disabled = false;
+                    saveBtn.classList.remove('bg-green-500', 'bg-red-500');
+                    saveBtn.classList.add('bg-teal-600');
+                }, 4000);
+            }
         }
 
         // Função para importar JSON e preencher o formulário
@@ -352,28 +412,19 @@
                 const moduleData = data.module;
                 if (!moduleData) throw new Error("Formato de JSON inválido. A chave 'module' não foi encontrada.");
 
-                // Limpa os campos dinâmicos
                 document.getElementById('paramsContainer').innerHTML = '';
                 document.getElementById('bodyContainer').innerHTML = '';
                 document.getElementById('resFormatContainer').innerHTML = '';
 
-                // Preenche os campos principais
                 document.getElementById('moduleId').value = moduleData.moduleId || '';
                 document.getElementById('moduleTitle').value = moduleData.moduleTitle || '';
                 document.getElementById('methodHttp').value = moduleData.method_http || 'GET';
                 document.getElementById('url').value = moduleData.url || '';
                 document.getElementById('hmac').value = moduleData.hmac || '';
 
-                // Preenche os parâmetros, body e resFormat
-                if (moduleData.params && Array.isArray(moduleData.params)) {
-                    moduleData.params.forEach(p => addParamField(p.key, p.value, p.alias, p.hide));
-                }
-                if (moduleData.body && Array.isArray(moduleData.body)) {
-                    moduleData.body.forEach(b => addBodyField(b.key, b.value, b.value_type, b.alias, b.hide));
-                }
-                if (moduleData.resFormat && Array.isArray(moduleData.resFormat)) {
-                    moduleData.resFormat.forEach(r => addResFormatField(r.key, r.value, r.value_type, r.alias));
-                }
+                if (moduleData.params) moduleData.params.forEach(p => addParamField(p.key, p.value, p.alias, p.hide));
+                if (moduleData.body) moduleData.body.forEach(b => addBodyField(b.key, b.value, b.value_type, b.alias, b.hide));
+                if (moduleData.resFormat) moduleData.resFormat.forEach(r => addResFormatField(r.key, r.value, r.value_type, r.alias, r.path));
 
                 toggleBodySection();
                 document.getElementById('moduleForm').dispatchEvent(new Event('submit'));
@@ -398,24 +449,16 @@
                 hmac: document.getElementById('hmac').value
             };
 
-            // Coleta dados dos parâmetros
-            const params = [];
-            document.querySelectorAll('#paramsContainer > div').forEach(div => {
-                const key = div.querySelector('[name="paramKey"]').value;
-                if (key) {
-                    params.push({
-                        key: key,
-                        value: div.querySelector('[name="paramValue"]').value,
-                        hide: div.querySelector('[name="paramHide"]').checked,
-                        alias: div.querySelector('[name="paramAlias"]').value
-                    });
-                }
-            });
+            const params = Array.from(document.querySelectorAll('#paramsContainer > div')).map(div => ({
+                key: div.querySelector('[name="paramKey"]').value,
+                value: div.querySelector('[name="paramValue"]').value,
+                hide: div.querySelector('[name="paramHide"]').checked,
+                alias: div.querySelector('[name="paramAlias"]').value
+            })).filter(p => p.key);
 
-            // Coleta dados do body
             const body = [];
             if (!document.getElementById('bodySection').classList.contains('hidden')) {
-                document.querySelectorAll('#bodyContainer > div').forEach(div => {
+                Array.from(document.querySelectorAll('#bodyContainer > div')).forEach(div => {
                     const key = div.querySelector('[name="bodyKey"]').value;
                     if (key) {
                         let value = div.querySelector('[name="bodyValue"]').value;
@@ -426,21 +469,24 @@
                 });
             }
             
-            // Coleta dados do formato de resposta
             const resFormat = [];
             document.querySelectorAll('#resFormatContainer > div').forEach(div => {
                 const key = div.querySelector('[name="resFormatKey"]').value;
                 if (key) {
-                    resFormat.push({
+                    const item = {
                         key: key,
                         value: div.querySelector('[name="resFormatValue"]').value,
                         value_type: div.querySelector('[name="resFormatValueType"]').value,
                         alias: div.querySelector('[name="resFormatAlias"]').value
-                    });
+                    };
+                    const path = div.querySelector('[name="resFormatPath"]').value;
+                    if (path) {
+                        item.path = path;
+                    }
+                    resFormat.push(item);
                 }
             });
             
-            // Constrói o objeto JSON final
             const moduleData = {
                 module: {
                     ...moduleDataFields,
@@ -465,3 +511,4 @@
     </script>
 </body>
 </html>
+
