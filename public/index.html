@@ -264,31 +264,21 @@
         const moduleDefinitions = [
             {
                 "module": {
-                    "moduleId": "63DAFE906829B76A",
-                    "moduleTitle": "Gerar Código",
-                    "method_http": "POST",
-                    "url": "https://api.samuellopes.com.br/v1/codegen",
-                    "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
-                    "params": [{"key": "modo", "value": "personal", "hide": true}],
-                    "body": [
-                        {"key": "formato", "value": "***********", "value_type": "text", "hide": false, "alias": "Formatação"},
-                        {"key": "seed", "value": "e31bfb0297279d252219424ec496809a", "value_type": "text", "hide": false, "alias": "Seed"},
-                        {"key": "caracteres", "value": "abcdef0123456789", "value_type": "text", "hide": false, "alias": "Caracteres"}
+                    "moduleId": "9BA45CA295DE2CBC",
+                    "moduleTitle": "Bitcoin Price",
+                    "method_http": "GET",
+                    "url": "https://api.coinpaprika.com/v1/tickers/btc-bitcoin",
+                    "hmac": "",
+                    "params": [
+                        { "key": "quotes", "value": "BRL", "hide": false, "alias": "Moeda" }
                     ],
                     "resFormat": [
-                        {"key": "cod", "value": "", "value_type": "text", "alias": "Código Gerado"}
+                        { "key": "name", "alias": "Nome" },
+                        { "key": "symbol", "alias": "Símbolo" },
+                        { "key": "price", "alias": "Preço (BRL)", "path": "quotes.BRL.price" },
+                        { "key": "volume_24h", "alias": "Volume (24h)", "path": "quotes.BRL.volume_24h" }
                     ]
                 }
-            },
-            {
-              "module": {
-                "moduleId": "75122A6533ED0D14",
-                "moduleTitle": "Validar CPF",
-                "method_http": "GET",
-                "url": "https://api.samuellopes.com.br/v1/validaCPF",
-                "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
-                "params": [{"key": "CPF", "value": "000.000.000-00", "hide": false, "alias": "CPF para validar"}]
-              }
             },
             {
               "module": {
@@ -305,141 +295,7 @@
                   { "key": "resultado", "value": "00.000.000/0000-00", "value_type": "text", "alias": "CNPJ Criado"}
                 ]
               }
-            },
-           {
-  "module": {
-    "moduleId": "5F06BB28477DDE3B",
-    "moduleTitle": "Recibo",
-    "method_http": "POST",
-    "url": "https://api.samuellopes.com.br/v1/recibo",
-    "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
-    "params": [
-      {
-        "key": "objeto",
-        "value": "true",
-        "hide": true,
-        "alias": ""
-      }
-    ],
-    "body": [
-      {
-        "key": "nomePagador",
-        "value": "Anonimo",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "cpfPagador",
-        "value": "000.000.001-91",
-        "value_type": "text",
-        "hide": false,
-        "alias": "CPF"
-      },
-      {
-        "key": "enderecoPagador",
-        "value": "Sem endereco",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "nomeRecebedor",
-        "value": "Anonimo",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "cpfRecebedor",
-        "value": "000.000.002-72",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "enderecoRecebedor",
-        "value": "Sem endereco",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "valor",
-        "value": "0.00",
-        "value_type": "text",
-        "hide": false,
-        "alias": "Informe o Valor"
-      },
-      {
-        "key": "referente",
-        "value": "Sem motivo de pagamento",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "formaPagamento",
-        "value": "Ficticio",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "data",
-        "value": "2025-06-26",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "cidade",
-        "value": "Brasilia",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      },
-      {
-        "key": "observacoes",
-        "value": "Sem observacoes",
-        "value_type": "text",
-        "hide": true,
-        "alias": ""
-      }
-    ],
-    "resFormat": [
-      {
-        "key": "extenso",
-        "value": "",
-        "value_type": "text",
-        "alias": "Valor por Extenso"
-      },
-      {
-        "key": "pagadorValido",
-        "value": "",
-        "value_type": "text",
-        "alias": "CPF é Válido?"
-      }
-    ]
-  }
-},
-{
-  "module": {
-    "moduleId": "9BA45CA295DE2CBC",
-    "moduleTitle": "Bitcoin Price",
-    "method_http": "GET",
-    "url": "https://api.coinpaprika.com/v1/tickers/btc-bitcoin",
-    "hmac": "",
-    "params": [
-      {
-        "key": "quotes",
-        "value": "BRL",
-        "hide": false,
-        "alias": "Moeda"
-      }
-    ]
-  }
-}
+            }
         ];
         // ===================================================================================
 
@@ -569,6 +425,12 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
+        // Função para buscar um valor aninhado em um objeto
+        function getNestedValue(obj, path) {
+            if (!path) return obj;
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
         async function handleFormSubmit(event, moduleConfig) {
             event.preventDefault();
             const form = event.target;
@@ -583,7 +445,11 @@
             if (moduleConfig.params) {
                 moduleConfig.params.forEach(p => urlParams.append(p.key, formData.get(p.key)));
             }
-            const finalUrl = `${moduleConfig.url}?${urlParams.toString()}`;
+            
+            const originalUrl = `${moduleConfig.url}?${urlParams.toString()}`;
+            // **CORREÇÃO CORS**: Usamos um proxy para contornar as restrições do navegador.
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const finalUrl = proxyUrl + encodeURIComponent(originalUrl);
 
             const bodyPayload = {};
             if (moduleConfig.body) {
@@ -606,7 +472,9 @@
             try {
                 const response = await fetch(finalUrl, fetchOptions);
                 const responseData = await response.json();
-                if (!response.ok) throw { status: response.status, data: responseData };
+                if (!response.ok && !responseData) throw new Error(`HTTP error! status: ${response.status}`);
+                if (responseData.error) throw responseData;
+
 
                 resultEl.innerHTML = '';
 
@@ -616,7 +484,9 @@
                     let tableBody = '';
                     moduleConfig.resFormat.forEach(item => {
                         const alias = item.alias || item.key;
-                        const value = responseData[item.key];
+                        // Permite buscar valores aninhados com a chave "path"
+                        const valuePath = item.path || item.key;
+                        const value = getNestedValue(responseData, valuePath);
                         const displayValue = value !== undefined ? value : '(chave não encontrada)';
                         tableBody += `<tr><td>${alias}</td><td>${displayValue}</td></tr>`;
                     });
