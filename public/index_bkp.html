@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulos de Requisição Dinâmica</title>
+    <style>
+        /* Importa a fonte Inter do Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        /* Reset e Estilos Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #111827; /* gray-900 */
+            --card-bg: #1f2937; /* gray-800 */
+            --border-color: #374151; /* gray-700 */
+            --text-primary: #f9fafb; /* gray-50 */
+            --text-secondary: #9ca3af; /* gray-400 */
+            --accent-color: #3b82f6; /* blue-500 */
+            --accent-hover: #2563eb; /* blue-600 */
+            --error-color: #f87171; /* red-400 */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Cabeçalho */
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        header p {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 1.125rem;
+        }
+
+        /* Container Principal dos Módulos */
+        #modules-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Card do Módulo */
+        .module-card {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 1rem; /* Aumentado */
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .module-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Blocos Arrastáveis */
+        .draggable-block {
+            padding: 0.5rem;
+            border: 1px solid transparent;
+            position: relative;
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+        }
+        
+        .drag-handle {
+            position: absolute;
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            color: #6b7280; /* gray-500 */
+            opacity: 0.5;
+            transition: opacity 0.2s, color 0.2s;
+            padding: 0.5rem;
+        }
+        
+        .draggable-block:hover .drag-handle {
+            opacity: 1;
+            color: var(--accent-color);
+        }
+
+        .dragging {
+            opacity: 0.6;
+            background-color: #374151;
+        }
+
+        .block-content {
+            margin-left: 1.25rem;
+        }
+
+        .block-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .form-fields-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-field input {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-field input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-button {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--accent-color);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        
+        .submit-button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Área de Resultado */
+        .result-container {
+            padding-top: 1rem;
+            margin-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .result-container h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .result-textarea {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-dark);
+            color: #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-height: 150px;
+            white-space: pre;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Tabela de Resultado */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .result-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .result-table td:first-child {
+            font-weight: 600;
+            color: var(--text-secondary);
+            width: 35%;
+        }
+
+        .result-table td:last-child {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: 'Courier New', Courier, monospace;
+            word-break: break-all;
+        }
+
+        /* Media Queries para Responsividade */
+        @media (min-width: 768px) {
+            #modules-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1280px) { /* xl */
+            #modules-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Painel de Módulos</h1>
+        <p>Execute requisições HTTP de forma modular e interativa.</p>
+    </header>
+
+    <main id="modules-container">
+        <!-- Os cards serão gerados pelo JavaScript aqui -->
+    </main>
+
+    <script>
+        // ===================================================================================
+        // ÁREA DE CONFIGURAÇÃO:
+        // ===================================================================================
+        const moduleDefinitions = [
+            {
+                "module": {
+                    "moduleId": "9BA45CA295DE2CBC",
+                    "moduleTitle": "Bitcoin Price",
+                    "method_http": "GET",
+                    "url": "https://api.coinpaprika.com/v1/tickers/btc-bitcoin",
+                    "hmac": "",
+                    "params": [
+                        { "key": "quotes", "value": "BRL", "hide": false, "alias": "Moeda" }
+                    ],
+                    "resFormat": [
+                        { "key": "name", "alias": "Nome" },
+                        { "key": "symbol", "alias": "Símbolo" },
+                        { "key": "price", "alias": "Preço (BRL)", "path": "quotes.BRL.price" },
+                        { "key": "volume_24h", "alias": "Volume (24h)", "path": "quotes.BRL.volume_24h" }
+                    ]
+                }
+            },
+            {
+              "module": {
+                "moduleId": "5E8C78ABCBB69C4A",
+                "moduleTitle": "Criar CNPJ",
+                "method_http": "GET",
+                "url": "https://api.samuellopes.com.br/v1/geraCNPJ",
+                "hmac": "CgAtbL9SUUzFzmzVRyjeCk9BDnNuTGQkcAYEqDFfZWna",
+                "params": [
+                  { "key": "filial", "value": "0001", "hide": false, "alias": "Código de filial (4 dígitos)"},
+                  { "key": "prefix", "value": "", "hide": false, "alias": "Até 8 números iniciais"}
+                ],
+                "resFormat": [
+                  { "key": "resultado", "value": "00.000.000/0000-00", "value_type": "text", "alias": "CNPJ Criado"}
+                ]
+              }
+            }
+        ];
+        // ===================================================================================
+
+        function createModuleCard(moduleConfig) {
+            const { moduleId, moduleTitle, params, body } = moduleConfig;
+            const container = document.getElementById('modules-container');
+
+            const card = document.createElement('div');
+            card.className = 'module-card';
+            card.id = `module-${moduleId}`;
+
+            const form = document.createElement('form');
+            form.className = 'card-form-container';
+
+            // Bloco 1: Título
+            const titleBlock = document.createElement('div');
+            titleBlock.className = 'draggable-block';
+            titleBlock.draggable = true;
+            titleBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content">
+                    <h2>${moduleTitle}</h2>
+                </div>
+            `;
+
+            // Bloco 2: Campos do Formulário
+            const fieldsBlock = document.createElement('div');
+            fieldsBlock.className = 'draggable-block';
+            fieldsBlock.draggable = true;
+            let formFieldsHtml = '';
+            const createFieldHtml = (item) => {
+                const inputName = item.key;
+                if (item.hide) {
+                    return `<input type="hidden" name="${inputName}" value="${item.value}">`;
+                } else {
+                    return `
+                        <div class="form-field">
+                            <label for="field-${moduleId}-${inputName}">${item.alias || inputName}</label>
+                            <input type="${item.value_type || 'text'}" id="field-${moduleId}-${inputName}" name="${inputName}" value="${item.value}">
+                        </div>
+                    `;
+                }
+            };
+            if (params) params.forEach(item => formFieldsHtml += createFieldHtml(item));
+            if (body) body.forEach(item => formFieldsHtml += createFieldHtml(item));
+            fieldsBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content form-fields-wrapper">
+                    ${formFieldsHtml}
+                </div>
+            `;
+
+            // Bloco 3: Botão de Execução
+            const buttonBlock = document.createElement('div');
+            buttonBlock.className = 'draggable-block';
+            buttonBlock.draggable = true;
+            buttonBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content">
+                    <button type="submit" class="submit-button">Executar</button>
+                </div>
+            `;
+
+            // Bloco 4: Resultado
+            const resultBlock = document.createElement('div');
+            resultBlock.className = 'draggable-block';
+            resultBlock.draggable = true;
+            resultBlock.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <div class="block-content result-container">
+                    <h3>Resultado:</h3>
+                    <div id="result-${moduleId}">Aguardando execução...</div>
+                </div>
+            `;
+
+            form.appendChild(titleBlock);
+            form.appendChild(fieldsBlock);
+            form.appendChild(buttonBlock);
+            form.appendChild(resultBlock);
+            card.appendChild(form);
+            container.appendChild(card);
+
+            form.addEventListener('submit', (event) => {
+                handleFormSubmit(event, moduleConfig);
+            });
+            addDragAndDropListeners(form);
+        }
+
+        function addDragAndDropListeners(container) {
+            const draggables = container.querySelectorAll('.draggable-block');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+            });
+
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(container, e.clientY);
+                const dragging = container.querySelector('.dragging');
+                if (dragging) {
+                    if (afterElement == null) {
+                        container.appendChild(dragging);
+                    } else {
+                        container.insertBefore(dragging, afterElement);
+                    }
+                }
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable-block:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Função para buscar um valor aninhado em um objeto
+        function getNestedValue(obj, path) {
+            if (!path) return obj;
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
+        async function handleFormSubmit(event, moduleConfig) {
+            event.preventDefault();
+            const form = event.target;
+            const resultEl = document.getElementById(`result-${moduleConfig.moduleId}`);
+            resultEl.innerHTML = 'Executando...';
+            resultEl.className = '';
+            resultEl.style.color = 'var(--text-secondary)';
+
+            const formData = new FormData(form);
+            const urlParams = new URLSearchParams();
+            if (moduleConfig.hmac) urlParams.append('hmac', moduleConfig.hmac);
+            if (moduleConfig.params) {
+                moduleConfig.params.forEach(p => urlParams.append(p.key, formData.get(p.key)));
+            }
+            
+            const originalUrl = `${moduleConfig.url}?${urlParams.toString()}`;
+            // **CORREÇÃO CORS**: Usamos um proxy para contornar as restrições do navegador.
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const finalUrl = proxyUrl + encodeURIComponent(originalUrl);
+
+            const bodyPayload = {};
+            if (moduleConfig.body) {
+                 moduleConfig.body.forEach(b => {
+                    const key = b.key;
+                    let value = formData.get(key);
+                    bodyPayload[key] = (b.value_type === 'number') ? (parseFloat(value) || 0) : value;
+                });
+            }
+            
+            const fetchOptions = {
+                method: moduleConfig.method_http.toUpperCase(),
+                headers: {'Content-Type': 'application/json'},
+            };
+
+            if (['POST', 'PUT', 'DELETE'].includes(fetchOptions.method) && Object.keys(bodyPayload).length > 0) {
+                fetchOptions.body = JSON.stringify(bodyPayload);
+            }
+            
+            try {
+                const response = await fetch(finalUrl, fetchOptions);
+                const responseData = await response.json();
+                if (!response.ok && !responseData) throw new Error(`HTTP error! status: ${response.status}`);
+                if (responseData.error) throw responseData;
+
+
+                resultEl.innerHTML = '';
+
+                if (moduleConfig.resFormat && moduleConfig.resFormat.length > 0) {
+                    const table = document.createElement('table');
+                    table.className = 'result-table';
+                    let tableBody = '';
+                    moduleConfig.resFormat.forEach(item => {
+                        const alias = item.alias || item.key;
+                        // Permite buscar valores aninhados com a chave "path"
+                        const valuePath = item.path || item.key;
+                        const value = getNestedValue(responseData, valuePath);
+                        const displayValue = value !== undefined ? value : '(chave não encontrada)';
+                        tableBody += `<tr><td>${alias}</td><td>${displayValue}</td></tr>`;
+                    });
+                    table.innerHTML = tableBody;
+                    resultEl.appendChild(table);
+                } else {
+                    resultEl.className = 'result-textarea';
+                    resultEl.textContent = JSON.stringify(responseData, null, 2);
+                }
+
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                resultEl.className = 'result-textarea';
+                let errorMessage = `Erro: ${error.message || 'Falha na requisição.'}\n\n`;
+                if (error.status) errorMessage += `Status: ${error.status}\n`;
+                if(error.data) errorMessage += `Resposta: ${JSON.stringify(error.data, null, 2)}`;
+                resultEl.textContent = errorMessage;
+                resultEl.style.color = 'var(--error-color)';
+            }
+        }
+
+        window.onload = function() {
+            if (moduleDefinitions && moduleDefinitions.length > 0) {
+                moduleDefinitions.forEach(config => {
+                    if (config.module) createModuleCard(config.module);
+                });
+            } else {
+                document.getElementById('modules-container').innerHTML = 
+                    '<p style="text-align: center; color: var(--text-secondary); grid-column: 1 / -1;">Nenhum módulo definido.</p>';
+            }
+        };
+    </script>
+</body>
+</html>
+
