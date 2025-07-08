@@ -1,59 +1,53 @@
 /**
- * Bem-vindo ao seu Worker para salvar Módulos no Cloudflare KV.
+ * Worker para gerenciar Módulos no Cloudflare KV.
  *
- * Este worker agora responde especificamente no endpoint: /kv/json
+ * Endpoints:
+ * - GET /kv/json -> Lista todas as chaves dos módulos.
+ * - GET /kv/json?key=<SUA_CHAVE> -> Retorna o JSON de um módulo específico.
+ * - PUT /kv/json -> Salva ou atualiza um módulo. O corpo deve ser { key: "...", value: "..." }.
+ * - DELETE /kv/json?key=<SUA_CHAVE> -> Apaga um módulo específico.
  *
- * Para este script funcionar, você precisa fazer duas coisas no seu ambiente Cloudflare:
- * 1. Criar um Namespace KV e nomeá-lo "CARD_MODULES".
- * 2. Adicionar um "KV Namespace Binding" nas configurações do seu Worker.
- * - Nome da variável (Variable name): CARD_MODULES
- * - Namespace KV (KV namespace): CARD_MODULES
- *
+ * Lembre-se de configurar o binding do KV "CARD_MODULES" nas configurações do seu worker.
  */
 
 export default {
   async fetch(request, env, ctx) {
-    // Extrai o caminho da URL para criar um roteamento simples.
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // Roteamento: Verifica se a requisição é para o endpoint correto.
+    // Roteamento para o endpoint /kv/json
     if (path !== '/kv/json') {
       return new Response('Endpoint não encontrado. Use /kv/json', { status: 404 });
     }
 
-    // O objeto 'env' contém os seus bindings, como o namespace KV.
     const { CARD_MODULES } = env;
 
-    // Lida com a requisição de pre-flight (CORS) que o navegador envia primeiro.
-    if (request.method === 'OPTIONS') {
-      return handleOptions(request);
+    // Roteamento baseado no método HTTP
+    switch (request.method) {
+      case 'GET':
+        return handleGetRequest(request, CARD_MODULES);
+      case 'PUT':
+        return handlePutRequest(request, CARD_MODULES);
+      case 'DELETE':
+        return handleDeleteRequest(request, CARD_MODULES);
+      case 'OPTIONS':
+        return handleOptions(request);
+      default:
+        return new Response('Método não permitido.', {
+          status: 405,
+          headers: { 'Allow': 'GET, PUT, DELETE, OPTIONS' },
+        });
     }
-
-    // Lida com a requisição PUT para salvar os dados.
-    if (request.method === 'PUT') {
-      return handlePutRequest(request, CARD_MODULES);
-    }
-
-    // Para qualquer outro método (GET, POST, etc.) no endpoint correto, retorna um erro.
-    return new Response('Método não permitido. Use PUT para salvar dados.', {
-      status: 405,
-      headers: corsHeaders, // Adiciona headers de CORS mesmo no erro.
-    });
   },
 };
 
 // Headers de CORS para permitir que o seu front-end se comunique com este worker.
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // Permite qualquer origem. Para mais segurança, substitua '*' pela URL da sua página.
-  'Access-Control-Allow-Methods': 'PUT, OPTIONS',
+  'Access-Control-Allow-Origin': '*', // Para produção, restrinja à sua URL.
+  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-/**
- * Lida com a requisição OPTIONS (pre-flight).
- * @param {Request} request
- */
 function handleOptions(request) {
   if (
     request.headers.get('Origin') !== null &&
@@ -61,58 +55,101 @@ function handleOptions(request) {
     request.headers.get('Access-Control-Request-Headers') !== null
   ) {
     // Responde ao pre-flight com os headers de permissão.
-    return new Response(null, {
-      headers: corsHeaders,
-    });
+    return new Response(null, { headers: corsHeaders });
   } else {
     // Se não for uma requisição de pre-flight válida, nega.
-    return new Response(null, {
-      headers: {
-        Allow: 'PUT, OPTIONS',
-      },
-    });
+    return new Response(null, { headers: { Allow: 'GET, PUT, DELETE, OPTIONS' } });
   }
 }
 
 /**
- * Lida com a requisição PUT para salvar o módulo no KV.
+ * Lida com requisições GET para listar chaves ou obter um valor específico.
  * @param {Request} request
- * @param {KVNamespace} kvNamespace - O binding para o seu namespace KV.
+ * @param {KVNamespace} kvNamespace
+ */
+async function handleGetRequest(request, kvNamespace) {
+    const url = new URL(request.url);
+    const key = url.searchParams.get('key');
+
+    try {
+        if (key) {
+            // Busca um valor específico
+            const value = await kvNamespace.get(key, 'json');
+            if (value === null) {
+                return new Response('Módulo não encontrado.', { status: 404, headers: corsHeaders });
+            }
+            return new Response(JSON.stringify(value), {
+                status: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        } else {
+            // Lista todas as chaves
+            const list = await kvNamespace.list();
+            return new Response(JSON.stringify(list.keys), {
+                status: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        }
+    } catch (error) {
+        console.error('Erro no GET do Worker:', error);
+        return new Response(`Erro interno do servidor: ${error.message}`, { status: 500, headers: corsHeaders });
+    }
+}
+
+
+/**
+ * Lida com requisições PUT para salvar/atualizar um módulo.
+ * @param {Request} request
+ * @param {KVNamespace} kvNamespace
  */
 async function handlePutRequest(request, kvNamespace) {
   try {
-    // Verifica se o header é do tipo JSON.
     if (request.headers.get('Content-Type') !== 'application/json') {
-      return new Response('Requisição inválida. Content-Type deve ser application/json.', { status: 400, headers: corsHeaders });
+      return new Response('Content-Type deve ser application/json.', { status: 400, headers: corsHeaders });
     }
 
-    // Lê e parseia o corpo da requisição.
     const { key, value } = await request.json();
 
-    // Valida se a chave e o valor foram fornecidos.
     if (!key || !value) {
-      return new Response('Requisição inválida. "key" e "value" são obrigatórios no corpo do JSON.', { status: 400, headers: corsHeaders });
+      return new Response('"key" e "value" são obrigatórios.', { status: 400, headers: corsHeaders });
     }
 
-    // Grava os dados no KV. O valor é o seu JSON de módulo como string.
+    // O valor já deve ser uma string JSON, então apenas o salvamos.
     await kvNamespace.put(key, value);
 
-    // Retorna uma resposta de sucesso.
     return new Response(JSON.stringify({ success: true, message: `Módulo salvo com a chave: ${key}` }), {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    // Em caso de erro (JSON inválido, falha ao gravar no KV, etc.), retorna uma mensagem de erro.
-    console.error('Erro no Worker:', error);
-    return new Response(`Erro interno do servidor: ${error.message}`, {
-      status: 500,
-      headers: corsHeaders,
-    });
+    console.error('Erro no PUT do Worker:', error);
+    return new Response(`Erro interno do servidor: ${error.message}`, { status: 500, headers: corsHeaders });
   }
+}
+
+/**
+ * Lida com requisições DELETE para apagar um módulo.
+ * @param {Request} request
+ * @param {KVNamespace} kvNamespace
+ */
+async function handleDeleteRequest(request, kvNamespace) {
+    const url = new URL(request.url);
+    const key = url.searchParams.get('key');
+
+    if (!key) {
+        return new Response('O parâmetro "key" é obrigatório para apagar.', { status: 400, headers: corsHeaders });
+    }
+
+    try {
+        await kvNamespace.delete(key);
+        return new Response(JSON.stringify({ success: true, message: `Módulo com a chave "${key}" foi apagado.` }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        console.error('Erro no DELETE do Worker:', error);
+        return new Response(`Erro interno do servidor: ${error.message}`, { status: 500, headers: corsHeaders });
+    }
 }
 
