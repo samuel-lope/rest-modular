@@ -429,6 +429,7 @@
     "moduleTitle": "Bitcoin Price",
     "method_http": "GET",
     "url": "https://api.coinpaprika.com/v1/tickers/btc-bitcoin",
+    "hmac": "",
     "params": [
       {
         "key": "quotes",
@@ -437,12 +438,12 @@
         "alias": "Moeda"
       }
     ],
-     "resFormat": [
+    "resFormat": [
       {
-        "key": "quotes.BRL.price",
-        "value": "",
-        "value_type": "text",
-        "alias": "Valor em BRL"
+        "key": "$.price",
+        "value": "0.00",
+        "value_type": "number",
+        "alias": "Valor"
       }
     ]
   }
