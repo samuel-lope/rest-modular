@@ -159,12 +159,12 @@
             padding: 5px;
         }
         [data-theme="dark"] .zoom-controls { background-color: rgba(45, 55, 72, 0.9); }
-        /* NOVO: Estilo para o display de zoom */
+        
         #zoom-display {
             min-width: 50px;
             text-align: center;
             font-weight: 500;
-            color: var(--text-primary);
+            /* CORRIGIDO: Removida a cor da variável para usar a cor padrão do Bootstrap */
         }
     </style>
 </head>
@@ -200,7 +200,6 @@
     <main class="d-flex flex-column">
         <div id="schema-container">
             <div id="zoom-wrapper"></div>
-            <!-- ALTERADO: Painel de zoom com novos elementos -->
             <div class="zoom-controls btn-group">
                 <button class="btn btn-light btn-sm" id="zoom-out-btn" title="Zoom Out">-</button>
                 <span id="zoom-display" class="btn btn-light btn-sm disabled">100%</span>
@@ -261,8 +260,8 @@
             const themeToggle = document.getElementById('theme-toggle');
             const snapToggle = document.getElementById('snap-to-grid-toggle');
             const gridSizeInput = document.getElementById('grid-size-input');
-            const zoomDisplay = document.getElementById('zoom-display'); // NOVO
-            const centerViewBtn = document.getElementById('center-view-btn'); // NOVO
+            const zoomDisplay = document.getElementById('zoom-display');
+            const centerViewBtn = document.getElementById('center-view-btn');
             
             let currentZoom = 1;
             let isPanning = false;
@@ -539,7 +538,6 @@
                 document.body.setAttribute('data-theme', themeToggle.checked ? 'dark' : 'light');
             });
 
-            // NOVO: Função para centralizar a visualização
             const centerView = () => {
                 const tables = zoomWrapper.querySelectorAll('.db-table');
                 if (tables.length === 0) return;
@@ -566,7 +564,7 @@
 
                 const scaleX = (containerRect.width - padding) / contentWidth;
                 const scaleY = (containerRect.height - padding) / contentHeight;
-                currentZoom = Math.min(scaleX, scaleY, 1.5); // Limita o zoom máximo para não ficar gigante
+                currentZoom = Math.min(scaleX, scaleY, 1.5);
 
                 const contentCenterX = minX + contentWidth / 2;
                 const contentCenterY = minY + contentHeight / 2;
@@ -577,7 +575,6 @@
                 updateZoom();
             };
 
-            // ALTERADO: Função de zoom agora atualiza o display
             const updateZoom = () => {
                 zoomWrapper.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${currentZoom})`;
                 zoomDisplay.textContent = `${Math.round(currentZoom * 100)}%`;
@@ -586,7 +583,7 @@
             document.getElementById('zoom-in-btn').addEventListener('click', () => { currentZoom = Math.min(3, currentZoom + 0.1); updateZoom(); });
             document.getElementById('zoom-out-btn').addEventListener('click', () => { currentZoom = Math.max(0.2, currentZoom - 0.1); updateZoom(); });
             document.getElementById('zoom-reset-btn').addEventListener('click', () => { currentZoom = 1; transform = { x: 0, y: 0 }; updateZoom(); });
-            centerViewBtn.addEventListener('click', centerView); // NOVO
+            centerViewBtn.addEventListener('click', centerView);
 
             // Pan Logic
             schemaContainer.addEventListener('mousedown', (e) => {
@@ -611,3 +608,4 @@
 
 </body>
 </html>
+
