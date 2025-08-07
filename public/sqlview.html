@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Esquema de BD v6.1</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-muted: #6c757d;
+            --border-color: #e0e0e0;
+            --table-bg: #fffbe0;
+            --table-border: #e6db9a;
+            --table-header-bg: #fdeca6;
+            --column-border: #f0e6bc;
+            --column-type-bg: #f5efd6;
+            --highlight-table-bg: #e2e8f0;
+            --highlight-table-border: #a3bffa;
+            --highlight-column-bg: #c3dafe;
+            --source-column-bg: #a3bffa;
+            --grid-color: rgba(113, 128, 150, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --text-primary: #f7fafc;
+            --text-muted: #a0aec0;
+            --border-color: #4a5568;
+            --table-bg: #4a5568;
+            --table-border: #718096;
+            --table-header-bg: #2d3748;
+            --column-border: #718096;
+            --column-type-bg: #2d3748;
+            --highlight-table-bg: #4299e1;
+            --highlight-table-border: #90cdf4;
+            --highlight-column-bg: #63b3ed;
+            --source-column-bg: #90cdf4;
+            --grid-color: rgba(200, 215, 235, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        .header .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        #schema-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-secondary);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: grab;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        #zoom-wrapper {
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+        }
+
+        .db-table {
+            position: absolute;
+            min-width: 250px;
+            max-width: 300px;
+            background-color: var(--table-bg);
+            border: 1px solid var(--table-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            cursor: move;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.2s, top 0.1s ease-out, left 0.1s ease-out;
+        }
+        
+        .table-header {
+            background-color: var(--table-header-bg);
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border-bottom: 1px solid var(--table-border);
+            font-size: 1rem;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .table-columns { list-style: none; padding: 0; margin: 0; }
+        .column-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--column-border);
+            font-size: 0.875rem;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .column-item:last-child { border-bottom: none; }
+        .column-name { font-weight: 500; }
+        .key-icon { color: #c7a10a; margin-right: 6px; }
+        .relation-icon { margin-right: 6px; opacity: 0.6; }
+        .column-type {
+            color: var(--text-muted);
+            background-color: var(--column-type-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .column-item.has-relation { cursor: pointer; }
+        .db-table.table-highlight { border-color: var(--highlight-table-border); background-color: var(--highlight-table-bg); }
+        .column-item.column-highlight { background-color: var(--highlight-column-bg); }
+        .column-item.column-source { background-color: var(--source-column-bg); }
+
+        .zoom-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 20;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            padding: 5px;
+        }
+        [data-theme="dark"] .zoom-controls { background-color: rgba(45, 55, 72, 0.9); }
+        /* NOVO: Estilo para o display de zoom */
+        #zoom-display {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- Header -->
+    <header class="header d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h4 mb-0">Visualizador de Esquema de Banco de Dados</h1>
+            <p class="text-muted mb-0 small">Clique em colunas com 🔗 para ver suas relações.</p>
+        </div>
+        <div class="d-flex align-items-center gap-4">
+            <div class="input-group input-group-sm" style="width: 150px;">
+                <label class="input-group-text" for="grid-size-input">Grelha (px)</label>
+                <input type="number" class="form-control" id="grid-size-input" value="20" min="5" step="5">
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="snap-to-grid-toggle">
+                <label class="form-check-label" for="snap-to-grid-toggle">Alinhar à Grelha</label>
+            </div>
+             <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="theme-toggle">
+                <label class="form-check-label" for="theme-toggle">Modo Escuro</label>
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jsonModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash me-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg>
+                Carregar Esquema
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="d-flex flex-column">
+        <div id="schema-container">
+            <div id="zoom-wrapper"></div>
+            <!-- ALTERADO: Painel de zoom com novos elementos -->
+            <div class="zoom-controls btn-group">
+                <button class="btn btn-light btn-sm" id="zoom-out-btn" title="Zoom Out">-</button>
+                <span id="zoom-display" class="btn btn-light btn-sm disabled">100%</span>
+                <button class="btn btn-light btn-sm" id="zoom-in-btn" title="Zoom In">+</button>
+                <button class="btn btn-light btn-sm" id="center-view-btn" title="Centralizar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/></svg>
+                </button>
+                <button class="btn btn-light btn-sm" id="zoom-reset-btn" title="Resetar Zoom">1:1</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Input -->
+    <div class="modal fade" id="jsonModal" tabindex="-1" aria-labelledby="jsonModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="jsonModalLabel">Carregar Esquema</h5>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="input-type-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="json-tab" data-bs-toggle="tab" data-bs-target="#json-pane" type="button" role="tab" aria-controls="json-pane" aria-selected="true">Carregar JSON</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="sql-tab" data-bs-toggle="tab" data-bs-target="#sql-pane" type="button" role="tab" aria-controls="sql-pane" aria-selected="false">Carregar SQL</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3">
+                        <div class="tab-pane fade show active" id="json-pane" role="tabpanel" aria-labelledby="json-tab">
+                            <label for="json-input" class="form-label fw-bold">Cole o JSON do esquema aqui:</label>
+                            <textarea class="form-control" id="json-input" rows="15" placeholder="Aguardando o JSON..."></textarea>
+                        </div>
+                        <div class="tab-pane fade" id="sql-pane" role="tabpanel" aria-labelledby="sql-tab">
+                             <label for="sql-input" class="form-label fw-bold">Cole o código SQL (CREATE TABLE) aqui:</label>
+                            <textarea class="form-control" id="sql-input" rows="15" placeholder="Aguardando o SQL..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="render-btn" class="btn btn-primary" data-bs-dismiss="modal">Criar Gráfico</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const renderBtn = document.getElementById('render-btn');
+            const jsonInput = document.getElementById('json-input');
+            const sqlInput = document.getElementById('sql-input');
+            const schemaContainer = document.getElementById('schema-container');
+            const zoomWrapper = document.getElementById('zoom-wrapper');
+            const themeToggle = document.getElementById('theme-toggle');
+            const snapToggle = document.getElementById('snap-to-grid-toggle');
+            const gridSizeInput = document.getElementById('grid-size-input');
+            const zoomDisplay = document.getElementById('zoom-display'); // NOVO
+            const centerViewBtn = document.getElementById('center-view-btn'); // NOVO
+            
+            let currentZoom = 1;
+            let isPanning = false;
+            let startPos = { x: 0, y: 0 };
+            let transform = { x: 0, y: 0 };
+
+            let relationships = [];
+            let tableElements = {};
+            let relationColumns = new Set();
+            
+            const parseSqlToJSON = (sql) => {
+                const sqlWithoutComments = sql.replace(/--.*$/gm, '');
+                const schema = {};
+                const statements = sqlWithoutComments.split(';');
+
+                statements.forEach(statement => {
+                    statement = statement.trim();
+                    
+                    const tableMatch = statement.match(/(?:CREATE\s+)?TABLE\s+`?(\w+)`?\s*\(([\s\S]+)\)/i);
+                    if (!tableMatch) return;
+
+                    const tableName = tableMatch[1];
+                    const defs = tableMatch[2];
+                    
+                    schema[tableName] = { columns: [], relations: [] };
+
+                    const lines = defs.split(/,(?![^\(]*\))/); 
+
+                    lines.forEach(line => {
+                        line = line.trim();
+                        if (!line) return;
+                        
+                        const foreignKeyMatch = line.match(/FOREIGN KEY\s*\(`?(\w+)`?\)\s*REFERENCES\s+`?(\w+)`?\s*\(`?(\w+)`?\)/i);
+                        
+                        if (foreignKeyMatch) {
+                            schema[tableName].relations.push({
+                                local_column: foreignKeyMatch[1],
+                                foreign_table: foreignKeyMatch[2],
+                                foreign_column: foreignKeyMatch[3]
+                            });
+                        } else {
+                            const columnMatch = line.match(/^`?(\w+)`?\s+([\w\(\), ]+)(.*)/i);
+                            if (columnMatch) {
+                                schema[tableName].columns.push({
+                                    name: columnMatch[1],
+                                    type: columnMatch[2].trim(),
+                                    constraints: columnMatch[3].trim()
+                                });
+                            }
+                        }
+                    });
+                });
+
+                return { databaseSchema: schema };
+            };
+
+            const renderFromSource = () => {
+                const activeTab = document.querySelector('#input-type-tab .nav-link.active').id;
+                let schemaData;
+
+                try {
+                    if (activeTab === 'sql-tab') {
+                        schemaData = parseSqlToJSON(sqlInput.value);
+                    } else {
+                        const rawText = jsonInput.value;
+                        const firstBraceIndex = rawText.indexOf('{');
+                        const lastBraceIndex = rawText.lastIndexOf('}');
+                        if (firstBraceIndex === -1 || lastBraceIndex === -1) {
+                            throw new Error("Conteúdo JSON inválido ou não encontrado.");
+                        }
+                        const sanitizedJson = rawText.substring(firstBraceIndex, lastBraceIndex + 1);
+                        schemaData = JSON.parse(sanitizedJson);
+
+                        for (const tableName in schemaData.databaseSchema) {
+                            const tableData = schemaData.databaseSchema[tableName];
+                            if (!tableData.relations || tableData.relations.length === 0) {
+                                tableData.relations = [];
+                                tableData.columns.forEach(column => {
+                                    if (column.constraints && column.constraints.toUpperCase().includes('FOREIGN KEY')) {
+                                        const fkMatch = column.constraints.match(/REFERENCES\s+`?(\w+)`?\s*\(`?(\w+)`?\)/i);
+                                        if (fkMatch) {
+                                            tableData.relations.push({
+                                                local_column: column.name,
+                                                foreign_table: fkMatch[1],
+                                                foreign_column: fkMatch[2]
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    
+                    renderSchema(schemaData);
+
+                } catch (error) {
+                    alert('Erro ao processar os dados. Verifique a sintaxe.');
+                    console.error("Processing Error:", error);
+                }
+            };
+
+            const renderSchema = (schemaData) => {
+                if (!schemaData || !schemaData.databaseSchema) {
+                    alert('JSON inválido ou não pôde ser gerado a partir do SQL.');
+                    return;
+                }
+                
+                zoomWrapper.innerHTML = '';
+                relationships = [];
+                tableElements = {};
+                relationColumns.clear();
+                
+                const tables = schemaData.databaseSchema;
+                
+                for (const tableName in tables) {
+                    const tableData = tables[tableName];
+                    if (tableData.relations && Array.isArray(tableData.relations)) {
+                        tableData.relations.forEach(rel => {
+                            if (tables[rel.foreign_table]) {
+                                relationships.push({
+                                    from: { table: rel.foreign_table, column: rel.foreign_column },
+                                    to: { table: tableName, column: rel.local_column }
+                                });
+                                relationColumns.add(`${tableName}.${rel.local_column}`);
+                                relationColumns.add(`${rel.foreign_table}.${rel.foreign_column}`);
+                            }
+                        });
+                    }
+                }
+
+                let currentX = 50;
+                let currentY = 50;
+                let maxYInRow = 0;
+                const containerWidth = schemaContainer.offsetWidth;
+                const tableWidth = 300;
+                const spacing = 40;
+
+                Object.keys(tables).forEach(tableName => {
+                    const tableData = tables[tableName];
+                    const tableEl = createTableElement(tableName, tableData);
+                    
+                    zoomWrapper.appendChild(tableEl);
+                    const tableHeight = tableEl.offsetHeight;
+
+                    if (currentX + tableWidth + spacing > containerWidth) {
+                        currentX = 50;
+                        currentY += maxYInRow + spacing;
+                        maxYInRow = 0;
+                    }
+
+                    tableEl.style.left = `${currentX}px`;
+                    tableEl.style.top = `${currentY}px`;
+                    
+                    currentX += tableWidth + spacing;
+                    if (tableHeight > maxYInRow) {
+                        maxYInRow = tableHeight;
+                    }
+
+                    tableElements[tableName] = tableEl;
+                });
+            };
+
+            const createTableElement = (tableName, data) => {
+                const tableDiv = document.createElement('div');
+                tableDiv.className = 'db-table';
+                tableDiv.id = `table-${tableName}`;
+
+                let columnsHtml = data.columns.map(col => {
+                    const isPk = col.constraints && col.constraints.toUpperCase().includes('PRIMARY KEY');
+                    const pkIcon = isPk ? '<span class="key-icon" title="Primary Key">🔑</span>' : '';
+                    
+                    const hasRelation = relationColumns.has(`${tableName}.${col.name}`);
+                    const relationIcon = hasRelation ? '<span class="relation-icon" title="Possui Relação">🔗</span>' : '';
+                    const relationClass = hasRelation ? 'has-relation' : '';
+
+                    return `<li class="column-item ${relationClass}" data-column-name="${col.name}" data-table-name="${tableName}"><span class="column-name">${pkIcon}${relationIcon}${col.name}</span><span class="column-type">${col.type}</span></li>`;
+                }).join('');
+
+                tableDiv.innerHTML = `<div class="table-header">${tableName}</div><ul class="table-columns">${columnsHtml}</ul>`;
+                
+                makeDraggable(tableDiv);
+                return tableDiv;
+            };
+
+            const makeDraggable = (element) => {
+                let initialX, initialY, offsetX, offsetY;
+
+                element.onmousedown = (e) => {
+                    if (e.target.closest('.column-item.has-relation')) return;
+                    e.preventDefault();
+
+                    initialX = e.clientX / currentZoom - transform.x / currentZoom;
+                    initialY = e.clientY / currentZoom - transform.y / currentZoom;
+                    offsetX = initialX - element.offsetLeft;
+                    offsetY = initialY - element.offsetTop;
+                    
+                    document.onmousemove = elementDrag;
+                    document.onmouseup = closeDragElement;
+                };
+
+                function elementDrag(e) {
+                    e.preventDefault();
+                    const newX = e.clientX / currentZoom - transform.x / currentZoom;
+                    const newY = e.clientY / currentZoom - transform.y / currentZoom;
+                    element.style.left = `${newX - offsetX}px`;
+                    element.style.top = `${newY - offsetY}px`;
+                };
+
+                function closeDragElement() {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+
+                    if (snapToggle.checked) {
+                        const gridSize = parseInt(gridSizeInput.value, 10);
+                        const newLeft = Math.round(element.offsetLeft / gridSize) * gridSize;
+                        const newTop = Math.round(element.offsetTop / gridSize) * gridSize;
+                        element.style.left = `${newLeft}px`;
+                        element.style.top = `${newTop}px`;
+                    }
+                };
+            };
+            
+            const clearHighlights = () => {
+                document.querySelectorAll('.table-highlight, .column-highlight, .column-source').forEach(el => {
+                    el.classList.remove('table-highlight', 'column-highlight', 'column-source');
+                });
+            };
+
+            const handleColumnClick = (e) => {
+                const columnEl = e.target.closest('.column-item');
+                if (!columnEl || !columnEl.classList.contains('has-relation')) {
+                    clearHighlights();
+                    return;
+                }
+
+                const tableName = columnEl.dataset.tableName;
+                const columnName = columnEl.dataset.columnName;
+
+                clearHighlights();
+                columnEl.classList.add('column-source');
+
+                relationships.forEach(rel => {
+                    let target;
+                    if (rel.from.table === tableName && rel.from.column === columnName) target = rel.to;
+                    if (rel.to.table === tableName && rel.to.column === columnName) target = rel.from;
+
+                    if (target) {
+                        const targetTableEl = tableElements[target.table];
+                        if (targetTableEl) {
+                            targetTableEl.classList.add('table-highlight');
+                            const targetColumnEl = targetTableEl.querySelector(`[data-column-name="${target.column}"]`);
+                            if (targetColumnEl) targetColumnEl.classList.add('column-highlight');
+                        }
+                    }
+                });
+            };
+
+            const updateGridBackground = () => {
+                const gridSize = parseInt(gridSizeInput.value, 10);
+                if (gridSize > 0) {
+                    schemaContainer.style.backgroundImage = `
+                        linear-gradient(var(--grid-color) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px)`;
+                    schemaContainer.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+                }
+            };
+            updateGridBackground();
+
+            // Event Listeners
+            zoomWrapper.addEventListener('click', handleColumnClick);
+            renderBtn.addEventListener('click', renderFromSource);
+            gridSizeInput.addEventListener('input', updateGridBackground);
+            themeToggle.addEventListener('change', () => {
+                document.body.setAttribute('data-theme', themeToggle.checked ? 'dark' : 'light');
+            });
+
+            // NOVO: Função para centralizar a visualização
+            const centerView = () => {
+                const tables = zoomWrapper.querySelectorAll('.db-table');
+                if (tables.length === 0) return;
+
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+                tables.forEach(table => {
+                    const left = table.offsetLeft;
+                    const top = table.offsetTop;
+                    const right = left + table.offsetWidth;
+                    const bottom = top + table.offsetHeight;
+
+                    if (left < minX) minX = left;
+                    if (top < minY) minY = top;
+                    if (right > maxX) maxX = right;
+                    if (bottom > maxY) maxY = bottom;
+                });
+
+                const contentWidth = maxX - minX;
+                const contentHeight = maxY - minY;
+                
+                const containerRect = schemaContainer.getBoundingClientRect();
+                const padding = 80;
+
+                const scaleX = (containerRect.width - padding) / contentWidth;
+                const scaleY = (containerRect.height - padding) / contentHeight;
+                currentZoom = Math.min(scaleX, scaleY, 1.5); // Limita o zoom máximo para não ficar gigante
+
+                const contentCenterX = minX + contentWidth / 2;
+                const contentCenterY = minY + contentHeight / 2;
+
+                transform.x = containerRect.width / 2 - contentCenterX * currentZoom;
+                transform.y = containerRect.height / 2 - contentCenterY * currentZoom;
+
+                updateZoom();
+            };
+
+            // ALTERADO: Função de zoom agora atualiza o display
+            const updateZoom = () => {
+                zoomWrapper.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${currentZoom})`;
+                zoomDisplay.textContent = `${Math.round(currentZoom * 100)}%`;
+            };
+            
+            document.getElementById('zoom-in-btn').addEventListener('click', () => { currentZoom = Math.min(3, currentZoom + 0.1); updateZoom(); });
+            document.getElementById('zoom-out-btn').addEventListener('click', () => { currentZoom = Math.max(0.2, currentZoom - 0.1); updateZoom(); });
+            document.getElementById('zoom-reset-btn').addEventListener('click', () => { currentZoom = 1; transform = { x: 0, y: 0 }; updateZoom(); });
+            centerViewBtn.addEventListener('click', centerView); // NOVO
+
+            // Pan Logic
+            schemaContainer.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.db-table')) return;
+                isPanning = true;
+                schemaContainer.style.cursor = 'grabbing';
+                startPos.x = e.clientX - transform.x;
+                startPos.y = e.clientY - transform.y;
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                transform.x = e.clientX - startPos.x;
+                transform.y = e.clientY - startPos.y;
+                updateZoom();
+            });
+            window.addEventListener('mouseup', () => {
+                isPanning = false;
+                schemaContainer.style.cursor = 'grab';
+            });
+        });
+    </script>
+
+</body>
+</html>
